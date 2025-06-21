@@ -1,0 +1,40 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/item_home_dog"
+        android:layout_width="62dp"
+        android:layout_height="62dp"
+        app:cardCornerRadius="50dp"
+        app:cardElevation="2dp"
+        app:strokeColor="@color/Secondary_pink"
+        app:strokeWidth="2dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/dog_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bg_grey"
+            android:contentDescription="@string/dog_default_image"
+            android:padding="@dimen/margin_l"
+            android:tint="@color/material_dynamic_neutral30"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/default_dog_img" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/dog_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/dog_name"
+        android:textColor="@color/material_dynamic_neutral30"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+</LinearLayout>

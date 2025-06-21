@@ -1,0 +1,18 @@
+<!-- res/drawable/bg_circle_selected.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Shadow layer -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#55000000" /> <!-- Half-transparent black shadow -->
+        </shape>
+    </item>
+
+    <!-- Color circle (white with tint and stroke will be applied separately) -->
+    <item android:left="4dp" android:top="4dp" android:right="4dp" android:bottom="4dp">
+        <shape android:shape="oval">
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+
+</layer-list>
