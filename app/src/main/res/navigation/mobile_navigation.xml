@@ -24,15 +24,16 @@
         android:name="com.danono.paws.ui.mydogs.AddDogFragment"
         android:label="Add Dog" />
 
+    <!-- _________ -->
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.danono.paws.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_reminders"
+        android:name="com.danono.paws.ui.reminders.RemindersFragment"
+        android:label="@string/title_reminders"
+        tools:layout="@layout/fragment_reminders" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.danono.paws.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_dog_parks"
+        android:name="com.danono.paws.ui.dog_parks.DogParksFragment"
+        android:label="@string/title_dog_parks"
+        tools:layout="@layout/fragment_dog_parks" />
 </navigation>

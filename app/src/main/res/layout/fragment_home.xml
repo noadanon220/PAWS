@@ -36,11 +36,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_m"
-                android:contentDescription="@string/desc_notifications"
+                android:contentDescription="@string/desc_reminders"
                 app:backgroundTint="@color/black"
                 app:fabSize="mini"
                 app:maxImageSize="@dimen/icon_size_fab_mini"
-                app:srcCompat="@drawable/ic_notifications_black_24dp"
+                app:srcCompat="@drawable/calendar_ic"
                 app:tint="@android:color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton

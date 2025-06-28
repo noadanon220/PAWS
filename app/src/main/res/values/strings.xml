@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">Paws</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_dog_parks">Dog Parks</string>
+    <string name="title_reminders">Reminders</string>
     <string name="home_paws">PAWS</string>
     <string name="desc_add">add</string>
-    <string name="desc_notifications">notifications</string>
+    <string name="desc_reminders">reminders</string>
     <string name="HOME_your_dogs">Your Dogs</string>
     <string name="desc_settings">desc_settings</string>
     <string name="dog_default_image">dog_default_image</string>
