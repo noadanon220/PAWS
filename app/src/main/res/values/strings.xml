@@ -12,4 +12,17 @@
     <string name="dog_name">Dog Name</string>
     <string name="edit_dog_image">edit_dog_image</string>
     <string name="add_new_dog">Add New Dog</string>
+    <string name="AddDog_name">Name</string>
+    <string name="AddDog_name_hint">Dog\'s name</string>
+    <string name="AddDog_breed">Breed</string>
+    <string name="AddDog_breed_hint">Select breed</string>
+    <string name="AddDog_date_of_birth">Date of Birth</string>
+    <string name="AddDog_date_hint">DD/MM/YYYY</string>
+    <string name="AddDog_color">Color</string>
+    <string name="neutered">Neutered</string>
+    <string name="microchipped">Microchipped</string>
+    <string name="AddDog_status">Status</string>
+    <string name="addDog_BTN_woof">WOOF!</string>
+    <string name="dog_personality_tags">Dog Personality Tags</string>
+
 </resources>

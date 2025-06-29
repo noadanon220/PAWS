@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.danono.paws.R
 import com.danono.paws.adapters.DogColorAdapter
 import com.danono.paws.databinding.FragmentAddDogBinding
+import com.danono.paws.model.DogTag
+import com.google.android.material.chip.Chip
 
 class AddDogFragment : Fragment() {
 
@@ -18,6 +20,49 @@ class AddDogFragment : Fragment() {
 
     private lateinit var colorAdapter: DogColorAdapter
     private val selectedColors = mutableSetOf<Int>() // Multi-select set
+
+    private val allTags = listOf(
+        DogTag("Friendly with dogs", DogTag.Category.BEHAVIOR_WITH_DOGS),
+        DogTag("Aggressive with dogs", DogTag.Category.BEHAVIOR_WITH_DOGS),
+        DogTag("Loves people", DogTag.Category.BEHAVIOR_WITH_HUMANS),
+        DogTag("Good with kids", DogTag.Category.BEHAVIOR_WITH_HUMANS),
+        DogTag("Calm", DogTag.Category.PERSONALITY),
+        DogTag("Playful", DogTag.Category.PERSONALITY),
+        DogTag("Energetic", DogTag.Category.ACTIVITY_LEVEL),
+        DogTag("Needs space", DogTag.Category.SPECIAL_NOTES)
+    )
+
+    private fun setupTagChips() {
+        val chipGroup = binding.addDogCHIPGROUPTags
+        chipGroup.removeAllViews()
+
+        for (tag in allTags) {
+            val chip = Chip(requireContext()).apply {
+                text = tag.label
+                isCheckable = true
+                isClickable = true
+            }
+            chipGroup.addView(chip)
+        }
+    }
+
+    private fun getSelectedTags(): List<String> {
+        val selected = mutableListOf<String>()
+        val chipGroup = binding.addDogCHIPGROUPTags
+
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as Chip
+            if (chip.isChecked) {
+                selected.add(chip.text.toString())
+            }
+        }
+
+        return selected
+    }
+
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,6 +75,8 @@ class AddDogFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupColorList()
+        setupTagChips()
+
     }
 
     private fun setupColorList() {

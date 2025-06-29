@@ -40,5 +40,18 @@
     <dimen name="margin_xl">24dp</dimen>
     <dimen name="icon_size_fab_mini">32dp</dimen>
 
+    <!-- Add Dog screen dimensions -->
+    <dimen name="AddDog_img_dimen_96">96dp</dimen>
+    <dimen name="AddDog_img_corners_100dp">100dp</dimen>
+    <dimen name="AddDog_img_stroke_4dp">4dp</dimen>
+    <dimen name="AddDog_img_frame_110dp">110dp</dimen>
+    <dimen name="AddDog_recyclerView_minHeight_48dp">48dp</dimen>
 
+    <!-- Stroke dimensions -->
+    <dimen name="stroke_xs">1dp</dimen>
+    <dimen name="stroke_s">2dp</dimen>
+    <dimen name="stroke_m">4dp</dimen>
+    <dimen name="stroke_l">8dp</dimen>
+    <dimen name="stroke_xl">16dp</dimen>
 </resources>
+
