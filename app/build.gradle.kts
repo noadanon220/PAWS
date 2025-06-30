@@ -17,6 +17,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "DOG_API_KEY",
+            "\"${project.findProperty("DOG_API_KEY")}\""
+        )
     }
 
     buildTypes {
@@ -37,6 +43,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -56,5 +63,6 @@ dependencies {
 
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
+    implementation(libs.okhttp)
 
 }

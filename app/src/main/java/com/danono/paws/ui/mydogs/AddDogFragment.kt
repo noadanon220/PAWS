@@ -4,14 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.danono.paws.R
 import com.danono.paws.adapters.DogColorAdapter
+import com.danono.paws.data.remote.DogApiClient
 import com.danono.paws.databinding.FragmentAddDogBinding
 import com.danono.paws.model.DogTag
 import com.google.android.material.chip.Chip
+import kotlinx.coroutines.launch
 
 class AddDogFragment : Fragment() {
 
@@ -76,8 +80,33 @@ class AddDogFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupColorList()
         setupTagChips()
-
+        fetchDogBreeds()
     }
+
+    private fun fetchDogBreeds() {
+        lifecycleScope.launch {
+            try {
+                val breeds = DogApiClient.dogApiService.getAllBreeds()
+                val breedNames = breeds.map { it.name }
+
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    breedNames
+                )
+                binding.addDogACTVBreed.setAdapter(adapter)
+                binding.addDogACTVBreed.setOnClickListener {
+                    binding.addDogACTVBreed.showDropDown()
+                }
+
+
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Failed to load breeds", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+            }
+        }
+    }
+
 
     private fun setupColorList() {
         val colorList = listOf(

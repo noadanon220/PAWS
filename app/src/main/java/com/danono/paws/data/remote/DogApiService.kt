@@ -6,6 +6,6 @@ import com.danono.paws.model.DogBreed
 interface DogApiService {
 
     // Returns a list of dog breeds with basic info (including breed name)
-    @GET("v1/breeds")
+    @GET("breeds")
     suspend fun getAllBreeds(): List<DogBreed>
 }
