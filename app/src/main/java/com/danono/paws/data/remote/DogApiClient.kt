@@ -1,10 +1,8 @@
 package com.danono.paws.data.remote
 
-import com.danono.paws.model.DogBreed
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
 import com.danono.paws.BuildConfig
 
 object DogApiClient {

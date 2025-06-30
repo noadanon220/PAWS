@@ -1,5 +1,6 @@
 package com.danono.paws.ui.mydogs
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,15 +17,26 @@ import com.danono.paws.databinding.FragmentAddDogBinding
 import com.danono.paws.model.DogTag
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
+/**
+ * Fragment for adding a new dog to the user's collection.
+ * Handles dog information input including name, breed, birthdate, colors, and personality tags.
+ */
 class AddDogFragment : Fragment() {
+
+    // ================================
+    // PROPERTIES
+    // ================================
 
     private var _binding: FragmentAddDogBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var colorAdapter: DogColorAdapter
-    private val selectedColors = mutableSetOf<Int>() // Multi-select set
+    private val selectedColors = mutableSetOf<Int>() // Multi-select set for dog colors
 
+    // Predefined personality tags for dogs
     private val allTags = listOf(
         DogTag("Friendly with dogs", DogTag.Category.BEHAVIOR_WITH_DOGS),
         DogTag("Aggressive with dogs", DogTag.Category.BEHAVIOR_WITH_DOGS),
@@ -36,40 +48,13 @@ class AddDogFragment : Fragment() {
         DogTag("Needs space", DogTag.Category.SPECIAL_NOTES)
     )
 
-    private fun setupTagChips() {
-        val chipGroup = binding.addDogCHIPGROUPTags
-        chipGroup.removeAllViews()
-
-        for (tag in allTags) {
-            val chip = Chip(requireContext()).apply {
-                text = tag.label
-                isCheckable = true
-                isClickable = true
-            }
-            chipGroup.addView(chip)
-        }
-    }
-
-    private fun getSelectedTags(): List<String> {
-        val selected = mutableListOf<String>()
-        val chipGroup = binding.addDogCHIPGROUPTags
-
-        for (i in 0 until chipGroup.childCount) {
-            val chip = chipGroup.getChildAt(i) as Chip
-            if (chip.isChecked) {
-                selected.add(chip.text.toString())
-            }
-        }
-
-        return selected
-    }
-
-
-
-
+    // ================================
+    // LIFECYCLE METHODS
+    // ================================
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddDogBinding.inflate(inflater, container, false)
@@ -78,36 +63,26 @@ class AddDogFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Initialize all UI components
         setupColorList()
         setupTagChips()
+        setupDatePicker()
         fetchDogBreeds()
     }
 
-    private fun fetchDogBreeds() {
-        lifecycleScope.launch {
-            try {
-                val breeds = DogApiClient.dogApiService.getAllBreeds()
-                val breedNames = breeds.map { it.name }
-
-                val adapter = ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_dropdown_item_1line,
-                    breedNames
-                )
-                binding.addDogACTVBreed.setAdapter(adapter)
-                binding.addDogACTVBreed.setOnClickListener {
-                    binding.addDogACTVBreed.showDropDown()
-                }
-
-
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Failed to load breeds", Toast.LENGTH_SHORT).show()
-                e.printStackTrace()
-            }
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
+    // ================================
+    // UI SETUP METHODS
+    // ================================
 
+    /**
+     * Sets up the horizontal color selection RecyclerView
+     */
     private fun setupColorList() {
         val colorList = listOf(
             R.color.dog_color_brown,
@@ -120,6 +95,7 @@ class AddDogFragment : Fragment() {
         )
 
         colorAdapter = DogColorAdapter(colorList) { color ->
+            // Handle color selection/deselection
             if (selectedColors.contains(color)) {
                 selectedColors.remove(color)
                 Toast.makeText(requireContext(), "Color removed!", Toast.LENGTH_SHORT).show()
@@ -135,8 +111,136 @@ class AddDogFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    /**
+     * Creates and displays personality tag chips in the ChipGroup
+     */
+    private fun setupTagChips() {
+        val chipGroup = binding.addDogCHIPGROUPTags
+        chipGroup.removeAllViews()
+
+        // Create a chip for each predefined tag
+        for (tag in allTags) {
+            val chip = Chip(requireContext()).apply {
+                text = tag.label
+                isCheckable = true
+                isClickable = true
+            }
+            chipGroup.addView(chip)
+        }
+    }
+
+    /**
+     * Sets up the date picker for the dog's birthdate field
+     */
+    private fun setupDatePicker() {
+        // Handle clicks on the date input field
+        binding.addDogEDTBirthdate.setOnClickListener {
+            showDatePicker()
+        }
+
+        // Handle clicks on the calendar icon
+        binding.addDogLAYOUTBirthdate.setEndIconOnClickListener {
+            showDatePicker()
+        }
+    }
+
+    // ================================
+    // DATE PICKER METHODS
+    // ================================
+
+    /**
+     * Displays a date picker dialog and handles date selection
+     */
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                // Format and display the selected date
+                val selectedDate = Calendar.getInstance()
+                selectedDate.set(selectedYear, selectedMonth, selectedDay)
+
+                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val formattedDate = dateFormat.format(selectedDate.time)
+
+                binding.addDogEDTBirthdate.setText(formattedDate)
+            },
+            year,
+            month,
+            day
+        )
+
+        // Prevent future dates (dogs can't be born in the future)
+        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+        datePickerDialog.show()
+    }
+
+    // ================================
+    // API METHODS
+    // ================================
+
+    /**
+     * Fetches dog breeds from the API and sets up the breed dropdown
+     */
+    private fun fetchDogBreeds() {
+        lifecycleScope.launch {
+            try {
+                val breeds = DogApiClient.dogApiService.getAllBreeds()
+                val breedNames = breeds.map { it.name }
+
+                // Create adapter for the AutoCompleteTextView
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    breedNames
+                )
+
+                binding.addDogACTVBreed.setAdapter(adapter)
+
+                // Show dropdown when user clicks on the field
+                binding.addDogACTVBreed.setOnClickListener {
+                    binding.addDogACTVBreed.showDropDown()
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Failed to load breeds", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+            }
+        }
+    }
+
+    // ================================
+    // UTILITY METHODS
+    // ================================
+
+    /**
+     * Returns a list of selected personality tags
+     * @return List of selected tag labels
+     */
+    private fun getSelectedTags(): List<String> {
+        val selected = mutableListOf<String>()
+        val chipGroup = binding.addDogCHIPGROUPTags
+
+        // Iterate through all chips and collect selected ones
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as Chip
+            if (chip.isChecked) {
+                selected.add(chip.text.toString())
+            }
+        }
+
+        return selected
+    }
+
+    /**
+     * Returns the currently selected colors
+     * @return Set of selected color resource IDs
+     */
+    private fun getSelectedColors(): Set<Int> {
+        return selectedColors.toSet()
     }
 }
