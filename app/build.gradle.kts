@@ -65,6 +65,8 @@ dependencies {
     implementation (libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.material.v1110)
+    implementation (libs.glide)
+
 
 
 }

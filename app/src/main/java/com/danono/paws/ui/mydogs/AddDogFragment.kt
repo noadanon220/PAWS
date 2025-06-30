@@ -1,15 +1,23 @@
 package com.danono.paws.ui.mydogs
 
 import android.app.DatePickerDialog
+import android.content.ContentValues
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.danono.paws.R
 import com.danono.paws.adapters.DogColorAdapter
 import com.danono.paws.data.remote.DogApiClient
@@ -19,6 +27,7 @@ import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import android.Manifest
 
 /**
  * Fragment for adding a new dog to the user's collection.
@@ -35,6 +44,38 @@ class AddDogFragment : Fragment() {
 
     private lateinit var colorAdapter: DogColorAdapter
     private val selectedColors = mutableSetOf<Int>() // Multi-select set for dog colors
+
+    private var selectedImageUri: Uri? = null
+    private var cameraImageUri: Uri? = null
+
+    // === GALLERY PICK ===
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            selectedImageUri = it
+            Glide.with(this).load(it).into(binding.addDogIMGDogImage)
+        }
+    }
+
+    // === CAMERA ===
+    private val takePhotoLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && cameraImageUri != null) {
+            Glide.with(this).load(cameraImageUri).into(binding.addDogIMGDogImage)
+        }
+    }
+
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            launchCamera()
+        } else {
+            Toast.makeText(requireContext(), "Camera permission is required", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // Predefined personality tags for dogs
     private val allTags = listOf(
@@ -69,6 +110,10 @@ class AddDogFragment : Fragment() {
         setupTagChips()
         setupDatePicker()
         fetchDogBreeds()
+
+        binding.addDogBTNEditImage.setOnClickListener {
+            showImagePickerOptions()
+        }
     }
 
     override fun onDestroyView() {
@@ -143,6 +188,58 @@ class AddDogFragment : Fragment() {
             showDatePicker()
         }
     }
+
+
+
+    // =============================
+    // IMAGE PICKER LOGIC
+    // =============================
+
+    private fun showImagePickerOptions() {
+        val options = arrayOf("Choose from phone", "Take a photo")
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Choose image source")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> pickImageLauncher.launch("image/*")
+                    1 -> requestCameraPermission()
+                }
+            }
+            .show()
+    }
+
+    private fun requestCameraPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            launchCamera()
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun launchCamera() {
+        cameraImageUri = createImageUri()
+        takePhotoLauncher.launch(cameraImageUri)
+    }
+
+    private fun createImageUri(): Uri {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "dog_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        }
+
+        return requireContext().contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )!!
+    }
+
+
+
 
     // ================================
     // DATE PICKER METHODS
