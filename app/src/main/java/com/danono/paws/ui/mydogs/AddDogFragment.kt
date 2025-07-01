@@ -390,7 +390,7 @@ class AddDogFragment : Fragment() {
     }
 
     // ================================
-    // UTILITY METHODS
+    // OTHER METHODS
     // ================================
 
     /**
