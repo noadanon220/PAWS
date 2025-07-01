@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -15,6 +17,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "DOG_API_KEY",
+            "\"${project.findProperty("DOG_API_KEY")}\""
+        )
     }
 
     buildTypes {
@@ -35,6 +43,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -51,4 +60,13 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.material.v1110)
+    implementation (libs.glide)
+
+
+
 }

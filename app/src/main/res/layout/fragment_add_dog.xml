@@ -1,193 +1,281 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:fillViewport="true"
+    android:paddingBottom="100dp"
+    android:id="@+id/fragment_add_dog">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/addDog_LBL_title"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_l"
-        android:text="@string/add_new_dog"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_headline" />
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/margin_xl">
 
-    <!-- Container for the dog image and the edit button -->
-    <FrameLayout
-        android:layout_width="110dp"
-        android:layout_height="110dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/margin_l">
 
-        <!-- Circular dog image inside a card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/addDog_CARD_img"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_gravity="center"
-            app:cardCornerRadius="100dp"
-            app:cardElevation="2dp"
-            app:strokeColor="@color/Secondary_pink"
-            app:strokeWidth="4dp">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/addDog_IMG_dogImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/bg_grey"
-                android:contentDescription="@string/dog_default_image"
-                android:padding="@dimen/margin_l"
-                android:scaleType="fitCenter"
-                android:tint="@color/material_dynamic_neutral30"
-                app:srcCompat="@drawable/default_dog_img" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Floating edit button positioned over the image -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/addDog_BTN_editImage"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/addDog_LBL_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            android:contentDescription="@string/edit_dog_image"
-            app:backgroundTint="@color/Primary_yellow"
-            app:fabSize="mini"
-            app:maxImageSize="32dp"
-            app:srcCompat="@drawable/edit_ic"
-            app:tint="@android:color/black" />
-    </FrameLayout>
-
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_l"
-        android:layout_marginTop="@dimen/margin_l"
-        android:layout_marginEnd="@dimen/margin_l"
-        android:layout_marginBottom="4dp"
-        android:text="Name"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_title" />
+            android:layout_margin="@dimen/margin_l"
+            android:text="@string/add_new_dog"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_headline" />
 
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_l"
-        android:layout_marginBottom="16dp"
-        app:boxBackgroundColor="@color/white"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
+        <FrameLayout
+            android:layout_width="@dimen/AddDog_img_frame_110dp"
+            android:layout_height="@dimen/AddDog_img_frame_110dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/margin_l">
 
 
-        <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/addDog_CARD_img"
+                android:layout_width="@dimen/AddDog_img_dimen_96"
+                android:layout_height="@dimen/AddDog_img_dimen_96"
+                android:layout_gravity="center"
+                app:cardCornerRadius="@dimen/AddDog_img_corners_100dp"
+                app:cardElevation="@dimen/cardview_default_elevation"
+                app:strokeColor="@color/Secondary_pink"
+                app:strokeWidth="@dimen/AddDog_img_stroke_4dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/addDog_IMG_dogImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/dog_default_image"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/default_dog_img" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/addDog_BTN_editImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="2dp"
+                android:contentDescription="@string/edit_dog_image"
+                app:backgroundTint="@color/Primary_yellow"
+                app:fabSize="mini"
+                app:maxImageSize="32dp"
+                app:srcCompat="@drawable/edit_ic"
+                app:tint="@android:color/black" />
+        </FrameLayout>
+
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Dog's name"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginStart="@dimen/margin_l"
+            android:layout_marginTop="@dimen/margin_l"
+            android:layout_marginEnd="@dimen/margin_l"
+            android:layout_marginBottom="@dimen/margin_xs"
+            android:text="@string/AddDog_name"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_l"
-        android:layout_marginTop="@dimen/margin_l"
-        android:layout_marginEnd="@dimen/margin_l"
-        android:layout_marginBottom="4dp"
-        android:text="Breed"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_title" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_l"
-        android:layout_marginBottom="16dp"
-        android:hint="Select breed"
-        app:boxBackgroundColor="@color/white"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:endIconMode="dropdown_menu">
-
-        <AutoCompleteTextView
-            android:id="@+id/addDog_DROPDOWN_breed"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_l"
-        android:layout_marginTop="@dimen/margin_l"
-        android:layout_marginEnd="@dimen/margin_l"
-        android:layout_marginBottom="4dp"
-        android:text="Date of Birth"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_title" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/addDog_LAYOUT_birthdate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_l"
-        android:layout_marginBottom="16dp"
-        app:boxBackgroundColor="@color/white"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:endIconDrawable="@drawable/calendar_ic"
-        app:endIconMode="custom">
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/addDog_EDT_birthdate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="DD/MM/YYYY"
-        android:focusable="false"
-        android:clickable="true"
-        android:inputType="none"
-        android:paddingVertical="12dp"
-        android:paddingHorizontal="16dp" />
-</com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/addDog_LBL_colors"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_l"
-        android:layout_marginTop="@dimen/margin_l"
-        android:layout_marginEnd="@dimen/margin_l"
-        android:text="Color"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_title" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/addDog_LST_colors"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_l"
-        android:layout_marginBottom="16dp"
-        android:minHeight="48dp"
-        android:orientation="horizontal"
-        android:overScrollMode="never"
-        android:clipToPadding="false"
-        android:paddingBottom="8dp" />
+            android:layout_marginHorizontal="@dimen/margin_l"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/AddDog_name_hint"
+                android:paddingHorizontal="@dimen/padding_l"
+                android:paddingVertical="@dimen/margin_l" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_l"
+            android:layout_marginTop="@dimen/margin_l"
+            android:layout_marginEnd="@dimen/margin_l"
+            android:layout_marginBottom="4dp"
+            android:text="@string/AddDog_breed"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_l"
+            android:layout_marginBottom="@dimen/margin_l"
+            android:hint="@string/AddDog_breed_hint"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="@dimen/button_corner_radius"
+            app:boxCornerRadiusBottomStart="@dimen/button_corner_radius"
+            app:boxCornerRadiusTopEnd="@dimen/button_corner_radius"
+            app:boxCornerRadiusTopStart="@dimen/button_corner_radius"
+            app:endIconMode="dropdown_menu">
+
+            <AutoCompleteTextView
+                android:id="@+id/addDogACTVBreed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:clickable="true"
+                android:labelFor="@id/addDogACTVBreed"
+                android:paddingHorizontal="@dimen/padding_l"
+                android:paddingVertical="@dimen/padding_m" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_l"
+            android:layout_marginTop="@dimen/margin_l"
+            android:layout_marginEnd="@dimen/margin_l"
+            android:layout_marginBottom="@dimen/margin_xs"
+            android:text="@string/AddDog_date_of_birth"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/addDog_LAYOUT_birthdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_l"
+            android:layout_marginBottom="@dimen/margin_l"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="@dimen/button_corner_radius"
+            app:boxCornerRadiusBottomStart="@dimen/button_corner_radius"
+            app:boxCornerRadiusTopEnd="@dimen/button_corner_radius"
+            app:boxCornerRadiusTopStart="@dimen/button_corner_radius"
+            app:endIconDrawable="@drawable/calendar_ic"
+            app:endIconMode="custom">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/addDog_EDT_birthdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="false"
+                android:hint="@string/AddDog_date_hint"
+                android:inputType="none"
+                android:paddingHorizontal="@dimen/padding_l"
+                android:paddingVertical="@dimen/padding_m" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/addDog_LBL_colors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_l"
+            android:layout_marginTop="@dimen/margin_l"
+            android:layout_marginEnd="@dimen/margin_l"
+            android:text="@string/AddDog_color"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/addDog_LST_colors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_l"
+            android:layout_marginBottom="@dimen/margin_l"
+            android:clipToPadding="false"
+            android:minHeight="@dimen/AddDog_recyclerView_minHeight_48dp"
+            android:orientation="horizontal"
+            android:overScrollMode="never"
+            android:paddingBottom="@dimen/padding_s" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/addDog_LBL_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_l"
+            android:layout_marginTop="@dimen/margin_l"
+            android:layout_marginEnd="@dimen/margin_l"
+            android:layout_marginBottom="@dimen/margin_xs"
+            android:text="@string/AddDog_status"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
 
 
-</LinearLayout>
+        <!-- Category: Neutered -->
+        <LinearLayout
+            android:id="@+id/addDog_LAYOUT_neutered"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_l"
+            android:layout_marginTop="@dimen/margin_m"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/addDog_RDB_neutered_yes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/neutered"
+                android:buttonTint="@color/lima_500"
+                android:textColor="@color/black" />
+
+            <RadioButton
+                android:id="@+id/addDog_RDB_social_no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/microchipped"
+                android:buttonTint="@color/malibu_500"
+                android:textColor="@color/black"
+                android:layout_marginStart="24dp" />
+        </LinearLayout>
+
+
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_l"
+            android:layout_marginTop="@dimen/margin_l"
+            android:layout_marginEnd="@dimen/margin_l"
+            android:layout_marginBottom="@dimen/margin_xs"
+            android:text="@string/dog_personality_tags"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/addDog_CHIPGROUP_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_l"
+            android:layout_marginBottom="@dimen/margin_l"
+            app:singleLine="false"
+            app:chipSpacing="8dp" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addDog_BTN_Woof"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="@string/addDog_BTN_woof"
+            android:layout_gravity="center_horizontal"
+            app:cornerRadius="50dp"
+            app:backgroundTint="@color/Primary_pink"
+            android:padding="@dimen/padding_l" />
+
+
+
+
+
+    </LinearLayout>
+</ScrollView>

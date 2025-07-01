@@ -10,6 +10,7 @@
     
     <color name="Primary_pink">#EC4899</color>
     <color name="Primary_yellow">#facc15</color>
+
     <color name="Secondary_pink">#FBCFE8</color>"
     <color name="bg_grey">#F3F4F6</color>
 
@@ -23,6 +24,31 @@
     <color name="dog_color_beige">#F5F5DC</color>
     <color name="dog_color_reddish">#A92E18</color>
 
+
+    <!-- Sky Blue Palette -->
+    <color name="malibu_50">#f0f9ff</color>
+    <color name="malibu_100">#dff2ff</color>
+    <color name="malibu_200">#b9e6fe</color>
+    <color name="malibu_300">#7bd5fe</color>
+    <color name="malibu_400">#43c4fc</color>
+    <color name="malibu_500">#0aa8ed</color>
+    <color name="malibu_600">#0086cb</color>
+    <color name="malibu_700">#006ba4</color>
+    <color name="malibu_800">#055b87</color>
+    <color name="malibu_900">#0a4b70</color>
+    <color name="malibu_950">#072f4a</color>
+
+    <color name="lima_50">#f3fbea</color>
+    <color name="lima_100">#e3f6d1</color>
+    <color name="lima_200">#c9eea8</color>
+    <color name="lima_300">#a5e175</color>
+    <color name="lima_400">#85d14a</color>
+    <color name="lima_500">#71cb31</color>
+    <color name="lima_600">#4c911f</color>
+    <color name="lima_700">#3b6f1c</color>
+    <color name="lima_800">#33581c</color>
+    <color name="lima_900">#2c4b1c</color>
+    <color name="lima_950">#14290a</color>
 
 
 </resources>

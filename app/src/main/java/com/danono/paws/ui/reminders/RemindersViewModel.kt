@@ -1,13 +1,13 @@
-package com.danono.paws.ui.notifications
+package com.danono.paws.ui.reminders
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class NotificationsViewModel : ViewModel() {
+class RemindersViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is notifications Fragment"
+        value = "This is reminders Fragment"
     }
     val text: LiveData<String> = _text
 }
