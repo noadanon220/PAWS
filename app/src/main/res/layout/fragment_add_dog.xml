@@ -23,6 +23,7 @@
             android:textSize="@dimen/text_size_headline" />
 
         <!-- Container for the dog image and the edit button -->
+        <!-- Container for the dog image and the edit button -->
         <FrameLayout
             android:layout_width="@dimen/AddDog_img_frame_110dp"
             android:layout_height="@dimen/AddDog_img_frame_110dp"
@@ -44,12 +45,10 @@
                     android:id="@+id/addDog_IMG_dogImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/bg_grey"
                     android:contentDescription="@string/dog_default_image"
-                    android:padding="@dimen/margin_l"
-                    android:scaleType="fitCenter"
-                    android:tint="@color/material_dynamic_neutral30"
+                    android:scaleType="centerCrop"
                     app:srcCompat="@drawable/default_dog_img" />
+
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Floating edit button positioned over the image -->

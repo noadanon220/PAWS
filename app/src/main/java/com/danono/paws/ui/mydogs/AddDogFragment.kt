@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import android.Manifest
+import android.util.Log
 
 /**
  * Fragment for adding a new dog to the user's collection.
@@ -54,7 +55,8 @@ class AddDogFragment : Fragment() {
     ) { uri ->
         uri?.let {
             selectedImageUri = it
-            Glide.with(this).load(it).into(binding.addDogIMGDogImage)
+            Log.d("AddDogFragment", "Gallery URI selected: $it")
+            loadImageWithErrorHandling(it)
         }
     }
 
@@ -62,8 +64,22 @@ class AddDogFragment : Fragment() {
     private val takePhotoLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
+        Log.d("AddDogFragment", "Camera result: $success")
+
         if (success && cameraImageUri != null) {
-            Glide.with(this).load(cameraImageUri).into(binding.addDogIMGDogImage)
+            Log.d("AddDogFragment", "Camera URI: $cameraImageUri")
+            selectedImageUri = cameraImageUri
+
+            // הוסף delay קטן למצלמה
+            binding.root.postDelayed({
+                loadImageWithErrorHandling(cameraImageUri!!)
+            }, 100)
+        } else {
+            Toast.makeText(
+                requireContext(),
+                "Failed to capture image",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -189,10 +205,8 @@ class AddDogFragment : Fragment() {
         }
     }
 
-
-
     // =============================
-    // IMAGE PICKER LOGIC
+    // IMAGE PICKER LOGIC - משופר
     // =============================
 
     private fun showImagePickerOptions() {
@@ -238,8 +252,73 @@ class AddDogFragment : Fragment() {
         )!!
     }
 
+    private fun loadImageWithErrorHandling(uri: Uri) {
+        try {
+            // בדוק שהקובץ זמין
+            requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
+                Log.d("AddDogFragment", "File is accessible")
 
+                Glide.with(this)
+                    .load(uri)
+                    .placeholder(android.R.drawable.ic_menu_gallery) // אייקון מקום ברירת מחדל
+                    .error(android.R.drawable.ic_menu_close_clear_cancel) // אייקון שגיאה ברירת מחדל
+                    .centerCrop()
+                    .listener(object : com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> {
+                        override fun onLoadFailed(
+                            e: com.bumptech.glide.load.engine.GlideException?,
+                            model: Any?,
+                            target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            Log.e("AddDogFragment", "Glide failed to load image", e)
+                            Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
+                            return false
+                        }
 
+                        override fun onResourceReady(
+                            resource: android.graphics.drawable.Drawable,
+                            model: Any,
+                            target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>,
+                            dataSource: com.bumptech.glide.load.DataSource,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            Log.d("AddDogFragment", "Image loaded successfully")
+                            return false
+                        }
+                    })
+                    .into(binding.addDogIMGDogImage)
+            }
+        } catch (e: Exception) {
+            Log.e("AddDogFragment", "Error accessing image file", e)
+            Toast.makeText(
+                requireContext(),
+                "Error accessing image: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+
+            // נסה שוב עם delay יותר ארוך (למקרה של מצלמה)
+            if (uri == cameraImageUri) {
+                binding.root.postDelayed({
+                    retryImageLoad(uri)
+                }, 500)
+            }
+        }
+    }
+
+    private fun retryImageLoad(uri: Uri) {
+        try {
+            requireContext().contentResolver.openInputStream(uri)?.use {
+                Log.d("AddDogFragment", "Retry successful")
+                Glide.with(this)
+                    .load(uri)
+                    .centerCrop()
+                    .into(binding.addDogIMGDogImage)
+            }
+        } catch (e: Exception) {
+            Log.e("AddDogFragment", "Retry failed", e)
+            Toast.makeText(requireContext(), "Image not ready yet", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // ================================
     // DATE PICKER METHODS
