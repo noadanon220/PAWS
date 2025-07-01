@@ -70,7 +70,6 @@ class AddDogFragment : Fragment() {
             Log.d("AddDogFragment", "Camera URI: $cameraImageUri")
             selectedImageUri = cameraImageUri
 
-            // הוסף delay קטן למצלמה
             binding.root.postDelayed({
                 loadImageWithErrorHandling(cameraImageUri!!)
             }, 100)
@@ -206,7 +205,7 @@ class AddDogFragment : Fragment() {
     }
 
     // =============================
-    // IMAGE PICKER LOGIC - משופר
+    // IMAGE PICKER LOGIC 
     // =============================
 
     private fun showImagePickerOptions() {
@@ -254,7 +253,6 @@ class AddDogFragment : Fragment() {
 
     private fun loadImageWithErrorHandling(uri: Uri) {
         try {
-            // בדוק שהקובץ זמין
             requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
                 Log.d("AddDogFragment", "File is accessible")
 
@@ -296,7 +294,6 @@ class AddDogFragment : Fragment() {
                 Toast.LENGTH_LONG
             ).show()
 
-            // נסה שוב עם delay יותר ארוך (למקרה של מצלמה)
             if (uri == cameraImageUri) {
                 binding.root.postDelayed({
                     retryImageLoad(uri)
