@@ -29,16 +29,16 @@ data class Dog (
         fun image(image: Int) = apply { this.image = image }
         fun tags(tags: List<String>) = apply { this.tags = tags }
         fun breedName(breedName: String) = apply { this.breedName = breedName }
-    }
 
-    fun build() = Dog(
-        name,
-        birthDate,
-        gender,
-        weight,
-        color,
-        image,
-        tags,
-        breedName
-    )
+        fun build() = Dog(
+            name,
+            birthDate,
+            gender,
+            weight,
+            color,
+            image,
+            tags,
+            breedName
+        )
+    }
 }

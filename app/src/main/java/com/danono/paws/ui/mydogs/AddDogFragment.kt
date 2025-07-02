@@ -29,6 +29,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.Manifest
 import android.util.Log
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import com.danono.paws.model.Dog
 
 /**
  * Fragment for adding a new dog to the user's collection.
@@ -48,6 +51,9 @@ class AddDogFragment : Fragment() {
 
     private var selectedImageUri: Uri? = null
     private var cameraImageUri: Uri? = null
+
+    private lateinit var sharedViewModel: SharedDogsViewModel
+
 
     // === GALLERY PICK ===
     private val pickImageLauncher = registerForActivityResult(
@@ -70,7 +76,6 @@ class AddDogFragment : Fragment() {
             Log.d("AddDogFragment", "Camera URI: $cameraImageUri")
             selectedImageUri = cameraImageUri
 
-            // הוסף delay קטן למצלמה
             binding.root.postDelayed({
                 loadImageWithErrorHandling(cameraImageUri!!)
             }, 100)
@@ -130,6 +135,32 @@ class AddDogFragment : Fragment() {
         binding.addDogBTNEditImage.setOnClickListener {
             showImagePickerOptions()
         }
+
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedDogsViewModel::class.java]
+
+        binding.addDogBTNWoof.setOnClickListener {
+            val name = binding.addDogName.text.toString()
+            val breed = binding.addDogACTVBreed.text.toString()
+            val birthDateStr = binding.addDogEDTBirthdate.text.toString()
+            val date = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(birthDateStr)
+            val birthDate = date?.time ?: System.currentTimeMillis()
+            val tags = getSelectedTags()
+            val colors = getSelectedColors().map { requireContext().resources.getResourceEntryName(it) }
+
+            val dog = Dog.Builder()
+                .name(name)
+                .birthDate(birthDate)
+                .breedName(breed)
+                .tags(tags)
+                .color(colors)
+                .image(R.drawable.default_dog_img)
+                .build()
+
+            sharedViewModel.addDog(dog)
+            findNavController().navigateUp()
+        }
+
+
     }
 
     override fun onDestroyView() {
@@ -206,7 +237,7 @@ class AddDogFragment : Fragment() {
     }
 
     // =============================
-    // IMAGE PICKER LOGIC - משופר
+    // IMAGE PICKER LOGIC
     // =============================
 
     private fun showImagePickerOptions() {
@@ -254,7 +285,6 @@ class AddDogFragment : Fragment() {
 
     private fun loadImageWithErrorHandling(uri: Uri) {
         try {
-            // בדוק שהקובץ זמין
             requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
                 Log.d("AddDogFragment", "File is accessible")
 
@@ -296,7 +326,6 @@ class AddDogFragment : Fragment() {
                 Toast.LENGTH_LONG
             ).show()
 
-            // נסה שוב עם delay יותר ארוך (למקרה של מצלמה)
             if (uri == cameraImageUri) {
                 binding.root.postDelayed({
                     retryImageLoad(uri)
