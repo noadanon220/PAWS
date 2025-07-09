@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="32dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/profile_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="Complete Your Profile"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title"
+            android:textStyle="bold" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:id="@+id/profile_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="Let's get to know you better"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_body" />
+
+        <!-- Profile Picture -->
+        <FrameLayout
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_marginBottom="24dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/itemDog_CARD_img"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                app:cardBackgroundColor="@color/bg_grey"
+                app:cardCornerRadius="@dimen/AddDog_img_corners_100dp"
+                app:cardElevation="@dimen/cardview_default_elevation"
+                app:strokeColor="@color/Secondary_pink"
+                app:strokeWidth="@dimen/AddDog_img_stroke_4dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/itemDog_IMG_dogImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_l"
+                    android:contentDescription="@string/dog_default_image"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/user_default_img"
+                    app:tint="@color/gray_dark" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/profile_btn_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="2dp"
+                android:contentDescription="@string/edit_profile_image"
+                app:backgroundTint="@color/Primary_yellow"
+                app:fabSize="mini"
+                app:maxImageSize="32dp"
+                app:srcCompat="@drawable/camera_ic"
+                app:tint="@android:color/black" />
+
+        </FrameLayout>
+
+        <!-- Username Label -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="Username"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
+
+        <!-- Email Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/login_EDT_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Choose a username"
+                android:inputType="textEmailAddress"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Location (Optional) Label -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/location_optional"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
+
+        <!-- Password Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/login_EDT_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/city_country"
+                android:inputType="textPassword"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Experience title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/experience_with_dogs"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title" />
+
+        <!-- Experience Chips in LinearLayout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_beginner"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:checkable="true"
+                android:text="@string/beginner"
+                app:checkedIconTint="@color/Secondary_pink"
+                app:chipBackgroundColor="@color/white"
+                app:chipStrokeColor="@color/Primary_pink"
+                app:chipStrokeWidth="@dimen/stroke_xs" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_intermediate"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:checkable="true"
+                android:text="@string/intermediate"
+                app:checkedIconTint="@color/Secondary_pink"
+                app:chipBackgroundColor="@color/white"
+                app:chipStrokeColor="@color/Primary_pink"
+                app:chipStrokeWidth="@dimen/stroke_xs" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_expert"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/expert"
+                app:checkedIconTint="@color/Secondary_pink"
+                app:chipBackgroundColor="@color/white"
+                app:chipStrokeColor="@color/Primary_pink"
+                app:chipStrokeWidth="@dimen/stroke_xs" />
+
+        </LinearLayout>
+        <!-- Save Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profile_btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:paddingVertical="14dp"
+            android:text="Save Profile"
+            android:textColor="@android:color/black"
+            app:backgroundTint="@color/Primary_yellow"
+            app:cornerRadius="50dp" />
+
+        <!-- Footer Note -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You can always update your profile later"
+            android:textColor="@color/text_gray_dark"
+            android:textSize="@dimen/text_size_body" />
+    </LinearLayout>
+</ScrollView>
