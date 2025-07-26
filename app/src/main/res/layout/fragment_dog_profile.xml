@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#F9F9F9">
 
-    <!-- תמונה של הכלב -->
+    <!-- Dog image -->
     <ImageView
         android:id="@+id/dogProfile_IMG_header"
         android:layout_width="0dp"
@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- שם הכלב -->
+    <!-- Dog name -->
     <TextView
         android:id="@+id/dogProfile_LBL_name"
         android:layout_width="wrap_content"
@@ -32,7 +32,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
-    <!-- גזע + גיל -->
+    <!-- Breed + age -->
     <TextView
         android:id="@+id/dogProfile_LBL_breed_and_age"
         android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="4dp" />
 
-    <!-- כרטיסי מידע עם CardViews -->
+    <!-- Info cards with CardViews -->
     <LinearLayout
         android:id="@+id/dogProfile_LAYOUT_infoCards"
         android:layout_width="0dp"
@@ -59,7 +59,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- כרטיס: צבע -->
+        <!-- Card: Color -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
                 android:textAlignment="center" />
         </androidx.cardview.widget.CardView>
 
-        <!-- כרטיס: משקל -->
+        <!-- Card: Weight -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
                 android:textAlignment="center" />
         </androidx.cardview.widget.CardView>
 
-        <!-- כרטיס: תאריך לידה -->
+        <!-- Card: Birthday -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -128,7 +128,7 @@
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
-    <!-- 🆕 כותרת: Care & Activities -->
+    <!-- 🆕 Title: Care & Activities -->
     <TextView
         android:id="@+id/dogProfile_LBL_careTitle"
         android:layout_width="wrap_content"
@@ -141,7 +141,7 @@
         app:layout_constraintTop_toBottomOf="@id/dogProfile_LAYOUT_infoCards"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- 🆕 RecyclerView אופקי לכרטיסים -->
+    <!-- 🆕 Horizontal RecyclerView for cards -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/dogProfile_RECYCLER_activities"
         android:layout_width="0dp"
@@ -157,7 +157,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- תגיות: מסורס / משובב -->
+    <!-- Tags: Neutered / Spayed -->
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/dogProfile_CHIPS_status"
         android:layout_width="wrap_content"
@@ -169,7 +169,7 @@
         app:chipSpacing="8dp"
         app:singleLine="true" />
 
-    <!-- כותרת: תגים והתנהגות -->
+    <!-- Title: Tags and behavior -->
     <TextView
         android:id="@+id/dogProfile_LBL_tagsTitle"
         android:layout_width="wrap_content"
@@ -182,7 +182,7 @@
         app:layout_constraintTop_toBottomOf="@id/dogProfile_CHIPS_status"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- תגיות אישיות -->
+    <!-- Personality tags -->
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/dogProfile_CHIPS_tags"
         android:layout_width="match_parent"
