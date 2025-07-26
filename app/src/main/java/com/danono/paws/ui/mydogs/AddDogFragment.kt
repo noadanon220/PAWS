@@ -262,9 +262,9 @@ class AddDogFragment : Fragment() {
         }
     }
 
-    // =============================
-    // IMAGE PICKER LOGIC
-    // =============================
+// =============================
+// IMAGE PICKER LOGIC
+// =============================
 
     private fun showImagePickerOptions() {
         val options = arrayOf("Choose from phone", "Take a photo")
@@ -316,8 +316,8 @@ class AddDogFragment : Fragment() {
 
                 Glide.with(this)
                     .load(uri)
-                    .placeholder(android.R.drawable.ic_menu_gallery) // אייקון מקום ברירת מחדל
-                    .error(android.R.drawable.ic_menu_close_clear_cancel) // אייקון שגיאה ברירת מחדל
+                    .placeholder(android.R.drawable.ic_menu_gallery) 
+                    .error(android.R.drawable.ic_menu_close_clear_cancel) 
                     .centerCrop()
                     .listener(object : com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> {
                         override fun onLoadFailed(
