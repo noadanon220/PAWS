@@ -24,5 +24,23 @@
     <string name="AddDog_status">Status</string>
     <string name="addDog_BTN_woof">WOOF!</string>
     <string name="dog_personality_tags">Dog Personality Tags</string>
+    <string name="app_logo">App logo</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
+    <string name="email">Email</string>
+    <string name="your_email_com">your@email.com</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="don_t_have_an_account">Don\'t have an account? </string>
+    <string name="register">Register</string>
+    <string name="or_continue_with">or continue with</string>
+    <string name="google_login">Google login</string>
+    <string name="edit_profile_image">Edit profile image</string>
+    <string name="city_country">City, Country</string>
+    <string name="experience_with_dogs">Experience with dogs</string>
+    <string name="location_optional">Location (Optional)</string>
+    <string name="beginner">Beginner</string>
+    <string name="intermediate">Intermediate</string>
+    <string name="expert">Expert</string>
+
 
 </resources>

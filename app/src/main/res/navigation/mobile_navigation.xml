@@ -3,37 +3,60 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@id/navigation_home">
 
     <!-- HOME -->
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.danono.paws.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
 
+        <!-- Navigate from Home to AddDog -->
         <action
             android:id="@+id/action_navigation_home_to_addDogFragment"
             app:destination="@id/addDogFragment" />
 
+        <!-- Navigate from Home to DogProfile -->
+        <action
+            android:id="@+id/action_navigation_home_to_dogProfileFragment"
+            app:destination="@id/dogProfileFragment" />
     </fragment>
 
-    <!-- HOME - ADD DOG -->
+    <!-- ADD DOG -->
     <fragment
         android:id="@+id/addDogFragment"
         android:name="com.danono.paws.ui.mydogs.AddDogFragment"
-        android:label="Add Dog" />
+        android:label="Add Dog"
+        tools:layout="@layout/fragment_add_dog">
 
-    <!-- _________ -->
+        <!-- Navigate back from AddDog to Home -->
+        <action
+            android:id="@+id/action_addDogFragment_to_navigation_home"
+            app:destination="@id/navigation_home"
+            app:popUpTo="@id/navigation_home"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- DOG PROFILE -->
+    <fragment
+        android:id="@+id/dogProfileFragment"
+        android:name="com.danono.paws.ui.mydogs.DogProfileFragment"
+        android:label="Dog Profile"
+        tools:layout="@layout/fragment_dog_profile" />
+
+    <!-- REMINDERS -->
     <fragment
         android:id="@+id/navigation_reminders"
         android:name="com.danono.paws.ui.reminders.RemindersFragment"
         android:label="@string/title_reminders"
         tools:layout="@layout/fragment_reminders" />
 
+    <!-- DOG PARKS -->
     <fragment
         android:id="@+id/navigation_dog_parks"
         android:name="com.danono.paws.ui.dog_parks.DogParksFragment"
         android:label="@string/title_dog_parks"
         tools:layout="@layout/fragment_dog_parks" />
+
 </navigation>
