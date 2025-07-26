@@ -6,36 +6,48 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.danono.paws.R
 import com.danono.paws.model.Dog
 
 // Adapter class that connects the list of Dog objects to the RecyclerView
-class DogAdapter(private val dogList: List<Dog>) :
-    RecyclerView.Adapter<DogAdapter.DogViewHolder>() {
+class DogAdapter(
+    private val dogList: List<Dog>,
+    private val onDogClick: (Dog) -> Unit // Callback function for dog card clicks
+) : RecyclerView.Adapter<DogAdapter.DogViewHolder>() {
 
-    // This is to get access to each detail inside the dog item
+    // ViewHolder class to access each view inside the item_dog_card layout
     class DogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val dog_img: AppCompatImageView = itemView.findViewById(R.id.dog_img)
-        val dog_name: AppCompatTextView = itemView.findViewById(R.id.dog_name)
+        val dogImage: AppCompatImageView = itemView.findViewById(R.id.itemDog_IMG_dogImage)
+        val dogName: AppCompatTextView = itemView.findViewById(R.id.itemDog_LBL_name)
+        val cardView: View = itemView.findViewById(R.id.itemDog_CARD_img) // Reference to the card
     }
 
-    // This is getting called only when a new ViewHolder needs to be created
-    // inflate: turn the dog_item.xml to a View
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DogViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_home_dog, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_dog_card, parent, false)
         return DogViewHolder(view)
     }
 
-    // Binds data from a Dog object to a ViewHolder (fills the item layout with content)
     override fun onBindViewHolder(holder: DogViewHolder, position: Int) {
         val dog = dogList[position]
-        holder.dog_name.text = dog.name
-        holder.dog_img.setImageResource(dog.image)
+        holder.dogName.text = dog.name
+
+        val context = holder.dogImage.context
+        val imageSource = dog.imageUrl.ifEmpty { R.drawable.default_dog_img }
+
+        Glide.with(context)
+            .load(imageSource)
+            .placeholder(R.drawable.default_dog_img)
+            .error(R.drawable.default_dog_img)
+            .centerCrop()
+            .into(holder.dogImage)
+
+        // Set click listener on the entire card
+        holder.itemView.setOnClickListener {
+            onDogClick(dog)
+        }
     }
 
-    // Returns the total number of items to display in the RecyclerView
     override fun getItemCount(): Int = dogList.size
-
-
-} // DogAdapter
+}

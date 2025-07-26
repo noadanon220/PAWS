@@ -12,9 +12,10 @@
         android:layout_width="@dimen/AddDog_img_dimen_96"
         android:layout_height="@dimen/AddDog_img_dimen_96"
         android:layout_gravity="center"
+        android:padding="@dimen/padding_s"
         app:cardCornerRadius="@dimen/AddDog_img_corners_100dp"
         app:cardElevation="@dimen/cardview_default_elevation"
-        app:strokeColor="@color/Secondary_pink"
+        app:strokeColor="@color/Primary_pink"
         app:strokeWidth="@dimen/AddDog_img_stroke_4dp">
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -23,6 +24,7 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/dog_default_image"
             android:scaleType="centerCrop"
+            android:elevation="@dimen/cardview_default_elevation"
             app:srcCompat="@drawable/default_dog_img" />
 
     </com.google.android.material.card.MaterialCardView>
@@ -34,7 +36,7 @@
         android:layout_marginTop="6dp"
         android:text="Dog Name"
         android:textColor="@android:color/black"
-        android:textSize="14sp"
+        android:textSize="@dimen/text_size_title"
         android:textStyle="bold"
         android:gravity="center"
         android:maxLines="1"

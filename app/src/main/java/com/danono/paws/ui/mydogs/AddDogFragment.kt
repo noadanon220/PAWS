@@ -32,6 +32,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.danono.paws.model.Dog
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * Fragment for adding a new dog to the user's collection.
@@ -139,28 +141,52 @@ class AddDogFragment : Fragment() {
         sharedViewModel = ViewModelProvider(requireActivity())[SharedDogsViewModel::class.java]
 
         binding.addDogBTNWoof.setOnClickListener {
-            val name = binding.addDogName.text.toString()
-            val breed = binding.addDogACTVBreed.text.toString()
-            val birthDateStr = binding.addDogEDTBirthdate.text.toString()
+            val name = binding.addDogName.text.toString().trim()
+            val breed = binding.addDogACTVBreed.text.toString().trim()
+            val birthDateStr = binding.addDogEDTBirthdate.text.toString().trim()
+
+            // Basic validation
+            if (name.isEmpty() || breed.isEmpty() || birthDateStr.isEmpty()) {
+                Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Show toast when saving starts
+            Toast.makeText(requireContext(), "Saving dog...", Toast.LENGTH_SHORT).show()
+
             val date = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(birthDateStr)
             val birthDate = date?.time ?: System.currentTimeMillis()
             val tags = getSelectedTags()
             val colors = getSelectedColors().map { requireContext().resources.getResourceEntryName(it) }
 
-            val dog = Dog.Builder()
-                .name(name)
-                .birthDate(birthDate)
-                .breedName(breed)
-                .tags(tags)
-                .color(colors)
-                .image(R.drawable.default_dog_img)
-                .build()
+            val dog = Dog(
+                name = name,
+                birthDate = birthDate,
+                gender = true, // you can make this dynamic later
+                weight = 0.0, // default for now
+                color = colors,
+                imageUrl = selectedImageUri?.toString() ?: "",
+                tags = tags,
+                breedName = breed
+            )
 
-            sharedViewModel.addDog(dog)
-            findNavController().navigateUp()
+            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
+
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .collection("dogs")
+                .add(dog)
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Dog added successfully 🐶", Toast.LENGTH_SHORT).show()
+                    sharedViewModel.addDog(dog)
+                    findNavController().navigate(R.id.action_addDogFragment_to_navigation_home)
+                }
+
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to add dog", Toast.LENGTH_SHORT).show()
+                }
         }
-
-
     }
 
     override fun onDestroyView() {
