@@ -5,11 +5,11 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.danono.paws.R
 import com.danono.paws.adapters.DogActivityAdapter
 import com.danono.paws.databinding.FragmentDogProfileBinding
 import com.danono.paws.model.Dog
+import com.danono.paws.utilities.ImageLoader
 import com.google.android.material.chip.Chip
 import java.text.SimpleDateFormat
 import java.util.*
@@ -46,18 +46,17 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
         val age = calculateAge(dog.birthDate)
         binding.dogProfileLBLBreedAndAge.text = "${dog.breedName} • $age years old"
 
-        // Load dog image
-        val imageSource = dog.imageUrl.ifEmpty { R.drawable.default_dog_img }
-        Glide.with(this)
-            .load(imageSource)
-            .placeholder(R.drawable.default_dog_img)
-            .error(R.drawable.default_dog_img)
-            .centerCrop()
-            .into(binding.dogProfileIMGHeader)
+        // Load dog image using ImageLoader
+        ImageLoader.getInstance().loadDogImage(dog.imageUrl, binding.dogProfileIMGHeader)
 
-        // Set color (assuming first color for now)
+        // Set color info
         if (dog.color.isNotEmpty()) {
-            binding.dogProfileLBLColor.text = "Color\n${dog.color.first()}"
+            val colorName = dog.color.first().replace("dog_color_", "").replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            }
+            binding.dogProfileLBLColor.text = "Color\n$colorName"
+        } else {
+            binding.dogProfileLBLColor.text = "Color\nUnknown"
         }
 
         // Set weight
@@ -93,13 +92,15 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
                 text = tag
                 isCheckable = false
                 isClickable = false
+                setChipBackgroundColorResource(R.color.bg_grey)
+                setTextColor(resources.getColor(R.color.black, null))
             }
             chipGroup.addView(chip)
         }
     }
 
     private fun setupActivityCards() {
-        val activityTitles = listOf("Notes", "Training", "Food", "Weight", "Poop")
+        val activityTitles = listOf("Notes", "Training", "Food")
 
         activitiesAdapter = DogActivityAdapter(activityTitles)
 

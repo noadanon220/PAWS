@@ -8,7 +8,6 @@
     <string name="desc_reminders">reminders</string>
     <string name="HOME_your_dogs">Your Dogs</string>
     <string name="desc_settings">desc_settings</string>
-    <string name="dog_default_image">dog_default_image</string>
     <string name="dog_name">Dog Name</string>
     <string name="edit_dog_image">edit_dog_image</string>
     <string name="add_new_dog">Add New Dog</string>
@@ -41,6 +40,18 @@
     <string name="beginner">Beginner</string>
     <string name="intermediate">Intermediate</string>
     <string name="expert">Expert</string>
+
+    <!-- Dog Profile Screen -->
+    <string name="dog_name_placeholder">Chubby</string>
+    <string name="breed_age_placeholder">Great Pyrenees • 1 years old</string>
+    <string name="color_placeholder">Color\nPyrenees</string>
+    <string name="weight_placeholder">Weight\n39kg</string>
+    <string name="birthday_placeholder">Birthday\nFeb 14</string>
+    <string name="tags_personality_title">Tags and Personality</string>
+    <string name="care_activities_title">Care and Activities</string>
+
+    <!-- Content descriptions -->
+    <string name="dog_default_image">Dog profile image</string>
 
 
 </resources>
