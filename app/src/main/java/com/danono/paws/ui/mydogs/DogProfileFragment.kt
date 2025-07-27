@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.danono.paws.R
-import com.danono.paws.adapters.DogActivityAdapter
+import com.danono.paws.adapters.ActivitiesAdapter
 import com.danono.paws.databinding.FragmentDogProfileBinding
 import com.danono.paws.model.Dog
 import com.danono.paws.utilities.ImageLoader
@@ -19,7 +19,7 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
     private var _binding: FragmentDogProfileBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var activitiesAdapter: DogActivityAdapter
+    private lateinit var activitiesAdapter: ActivitiesAdapter
     private lateinit var sharedViewModel: SharedDogsViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -102,7 +102,7 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
     private fun setupActivityCards() {
         val activityTitles = listOf("Notes", "Training", "Food")
 
-        activitiesAdapter = DogActivityAdapter(activityTitles)
+        activitiesAdapter = ActivitiesAdapter(activityTitles)
 
         binding.dogProfileRECYCLERActivities.apply {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
