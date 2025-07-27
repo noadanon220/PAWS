@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.danono.paws.R
 import com.google.android.material.card.MaterialCardView
 
-class DogActivityAdapter(private val activities: List<String>) :
-    RecyclerView.Adapter<DogActivityAdapter.ActivityViewHolder>() {
+class ActivitiesAdapter(private val activities: List<String>) :
+    RecyclerView.Adapter<ActivitiesAdapter.ActivityViewHolder>() {
 
     private val backgroundColors = listOf(
         R.color.Secondary_pink,
