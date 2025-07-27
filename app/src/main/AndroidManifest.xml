@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Allow camera usage (optional) -->
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false" />
-
-    <!-- Required permissions -->
+        android:required="false" /> <!-- Required permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -26,22 +23,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Paws"
         tools:targetApi="31">
-
+        <activity
+            android:name=".utilities.StorageActivity"
+            android:exported="false" />
         <!-- LoginActivity is the launcher activity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- MainActivity is opened after login -->
+        </activity> <!-- MainActivity is opened after login -->
         <activity
             android:name=".MainActivity"
             android:exported="true" />
-
     </application>
 
 </manifest>

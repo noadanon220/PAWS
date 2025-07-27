@@ -9,6 +9,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.danono.paws.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
+import android.graphics.Color
+import android.os.Build
+import android.view.View
+import android.view.WindowManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +29,19 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
             return
+        }
+
+        // Hide status bar completely
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // For Android 11 and above
+            window.setDecorFitsSystemWindows(false)
+            window.statusBarColor = Color.TRANSPARENT
+        } else {
+            // For older Android versions
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
         }
 
         binding = ActivityMainBinding.inflate(layoutInflater)

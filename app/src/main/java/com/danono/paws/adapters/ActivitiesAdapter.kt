@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.danono.paws.R
+import com.google.android.material.card.MaterialCardView
 
 class DogActivityAdapter(private val activities: List<String>) :
     RecyclerView.Adapter<DogActivityAdapter.ActivityViewHolder>() {
@@ -29,15 +30,16 @@ class DogActivityAdapter(private val activities: List<String>) :
         val activity = activities[position]
         holder.title.text = activity
 
+        // Set different background color for each MaterialCardView
         val colorRes = backgroundColors[position % backgroundColors.size]
-        holder.itemView.setBackgroundColor(
-            ContextCompat.getColor(holder.itemView.context, colorRes)
-        )
+        val color = ContextCompat.getColor(holder.itemView.context, colorRes)
+        holder.cardView.setCardBackgroundColor(color)
     }
 
     override fun getItemCount(): Int = activities.size
 
     class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.card_LBL_title)
+        val cardView: MaterialCardView = itemView as MaterialCardView
     }
 }

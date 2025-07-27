@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.danono.paws.R
 import com.danono.paws.model.Dog
+import com.danono.paws.utilities.ImageLoader
 
 // Adapter class that connects the list of Dog objects to the RecyclerView
 class DogAdapter(
@@ -33,15 +33,8 @@ class DogAdapter(
         val dog = dogList[position]
         holder.dogName.text = dog.name
 
-        val context = holder.dogImage.context
-        val imageSource = dog.imageUrl.ifEmpty { R.drawable.default_dog_img }
-
-        Glide.with(context)
-            .load(imageSource)
-            .placeholder(R.drawable.default_dog_img)
-            .error(R.drawable.default_dog_img)
-            .centerCrop()
-            .into(holder.dogImage)
+        // Use ImageLoader instead of direct Glide calls
+        ImageLoader.getInstance().loadDogImage(dog.imageUrl, holder.dogImage)
 
         // Set click listener on the entire card
         holder.itemView.setOnClickListener {

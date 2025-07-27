@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -17,7 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.danono.paws.R
 import com.danono.paws.adapters.DogColorAdapter
 import com.danono.paws.data.remote.DogApiClient
@@ -32,8 +30,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.danono.paws.model.Dog
+import com.danono.paws.utilities.ImageLoader
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 /**
  * Fragment for adding a new dog to the user's collection.
@@ -55,7 +55,6 @@ class AddDogFragment : Fragment() {
     private var cameraImageUri: Uri? = null
 
     private lateinit var sharedViewModel: SharedDogsViewModel
-
 
     // === GALLERY PICK ===
     private val pickImageLauncher = registerForActivityResult(
@@ -140,6 +139,7 @@ class AddDogFragment : Fragment() {
 
         sharedViewModel = ViewModelProvider(requireActivity())[SharedDogsViewModel::class.java]
 
+        // Replace existing "Woof" button click listener
         binding.addDogBTNWoof.setOnClickListener {
             val name = binding.addDogName.text.toString().trim()
             val breed = binding.addDogACTVBreed.text.toString().trim()
@@ -159,39 +159,118 @@ class AddDogFragment : Fragment() {
             val tags = getSelectedTags()
             val colors = getSelectedColors().map { requireContext().resources.getResourceEntryName(it) }
 
-            val dog = Dog(
-                name = name,
-                birthDate = birthDate,
-                gender = true, // you can make this dynamic later
-                weight = 0.0, // default for now
-                color = colors,
-                imageUrl = selectedImageUri?.toString() ?: "",
-                tags = tags,
-                breedName = breed
-            )
-
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
 
-            FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(userId)
-                .collection("dogs")
-                .add(dog)
-                .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Dog added successfully 🐶", Toast.LENGTH_SHORT).show()
-                    sharedViewModel.addDog(dog)
-                    findNavController().navigate(R.id.action_addDogFragment_to_navigation_home)
-                }
-
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Failed to add dog", Toast.LENGTH_SHORT).show()
-                }
+            // If image was selected, upload it to Firebase Storage first
+            if (selectedImageUri != null) {
+                uploadImageAndSaveDog(
+                    userId = userId,
+                    name = name,
+                    breed = breed,
+                    birthDate = birthDate,
+                    tags = tags,
+                    colors = colors,
+                    imageUri = selectedImageUri!!
+                )
+            } else {
+                // Save without image
+                saveDogToFirestore(
+                    userId = userId,
+                    name = name,
+                    breed = breed,
+                    birthDate = birthDate,
+                    tags = tags,
+                    colors = colors,
+                    imageUrl = ""
+                )
+            }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // ================================
+    // FIREBASE STORAGE METHODS
+    // ================================
+
+    private fun uploadImageAndSaveDog(
+        userId: String,
+        name: String,
+        breed: String,
+        birthDate: Long,
+        tags: List<String>,
+        colors: List<String>,
+        imageUri: Uri
+    ) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("dog_images/${userId}/${UUID.randomUUID()}.jpg")
+
+        imageRef.putFile(imageUri)
+            .addOnSuccessListener { taskSnapshot ->
+                // Get the permanent download URL
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    saveDogToFirestore(
+                        userId = userId,
+                        name = name,
+                        breed = breed,
+                        birthDate = birthDate,
+                        tags = tags,
+                        colors = colors,
+                        imageUrl = downloadUri.toString()
+                    )
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                // Save without image as fallback
+                saveDogToFirestore(
+                    userId = userId,
+                    name = name,
+                    breed = breed,
+                    birthDate = birthDate,
+                    tags = tags,
+                    colors = colors,
+                    imageUrl = ""
+                )
+            }
+    }
+
+    private fun saveDogToFirestore(
+        userId: String,
+        name: String,
+        breed: String,
+        birthDate: Long,
+        tags: List<String>,
+        colors: List<String>,
+        imageUrl: String
+    ) {
+        val dog = Dog(
+            name = name,
+            birthDate = birthDate,
+            gender = true,
+            weight = 0.0,
+            color = colors,
+            imageUrl = imageUrl, // Now this is a permanent Firebase Storage URL
+            tags = tags,
+            breedName = breed
+        )
+
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userId)
+            .collection("dogs")
+            .add(dog)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Dog added successfully 🐶", Toast.LENGTH_SHORT).show()
+                sharedViewModel.addDog(dog)
+                findNavController().navigate(R.id.action_addDogFragment_to_navigation_home)
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to add dog", Toast.LENGTH_SHORT).show()
+            }
     }
 
     // ================================
@@ -262,9 +341,9 @@ class AddDogFragment : Fragment() {
         }
     }
 
-// =============================
-// IMAGE PICKER LOGIC
-// =============================
+    // =============================
+    // IMAGE PICKER LOGIC
+    // =============================
 
     private fun showImagePickerOptions() {
         val options = arrayOf("Choose from phone", "Take a photo")
@@ -314,35 +393,8 @@ class AddDogFragment : Fragment() {
             requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
                 Log.d("AddDogFragment", "File is accessible")
 
-                Glide.with(this)
-                    .load(uri)
-                    .placeholder(android.R.drawable.ic_menu_gallery) 
-                    .error(android.R.drawable.ic_menu_close_clear_cancel) 
-                    .centerCrop()
-                    .listener(object : com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> {
-                        override fun onLoadFailed(
-                            e: com.bumptech.glide.load.engine.GlideException?,
-                            model: Any?,
-                            target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            Log.e("AddDogFragment", "Glide failed to load image", e)
-                            Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
-                            return false
-                        }
-
-                        override fun onResourceReady(
-                            resource: android.graphics.drawable.Drawable,
-                            model: Any,
-                            target: com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable>,
-                            dataSource: com.bumptech.glide.load.DataSource,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            Log.d("AddDogFragment", "Image loaded successfully")
-                            return false
-                        }
-                    })
-                    .into(binding.addDogIMGDogImage)
+                // Use ImageLoader for consistency
+                ImageLoader.getInstance().loadImage(uri, binding.addDogIMGDogImage)
             }
         } catch (e: Exception) {
             Log.e("AddDogFragment", "Error accessing image file", e)
@@ -364,10 +416,7 @@ class AddDogFragment : Fragment() {
         try {
             requireContext().contentResolver.openInputStream(uri)?.use {
                 Log.d("AddDogFragment", "Retry successful")
-                Glide.with(this)
-                    .load(uri)
-                    .centerCrop()
-                    .into(binding.addDogIMGDogImage)
+                ImageLoader.getInstance().loadImage(uri, binding.addDogIMGDogImage)
             }
         } catch (e: Exception) {
             Log.e("AddDogFragment", "Retry failed", e)
@@ -445,7 +494,7 @@ class AddDogFragment : Fragment() {
     }
 
     // ================================
-    // OTHER METHODS
+    // HELPER METHODS
     // ================================
 
     /**
