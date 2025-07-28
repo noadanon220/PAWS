@@ -5,6 +5,5 @@ data class DogNote(
     val title: String = "",
     val content: String = "",
     val createdDate: Long = 0L,
-    val lastModified: Long = 0L,
-    val dogName: String = ""
+    val lastModified: Long = 0L
 )

@@ -29,7 +29,8 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
     // Firebase instances for database operations
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private var currentDogName: String = ""
+    private var currentDogId: String = "" // Use dog ID instead of name
+    private var currentDogName: String = "" // Keep name for display purposes
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -60,11 +61,18 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
     }
 
     private fun observeSelectedDog() {
+        // Observe both dog and dogId
         sharedViewModel.selectedDog.observe(viewLifecycleOwner) { dog ->
             dog?.let {
                 currentDogName = dog.name
                 binding.dogNameTitle.text = "${dog.name}'s Notes"
-                loadNotesFromFirebase(dog.name)
+            }
+        }
+
+        sharedViewModel.selectedDogId.observe(viewLifecycleOwner) { dogId ->
+            dogId?.let {
+                currentDogId = it
+                loadNotesFromFirebase(it)
             }
         }
     }
@@ -97,7 +105,7 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
         val contentInput = dialogView.findViewById<TextInputEditText>(R.id.noteContent)
 
         titleInput.setText(note.title)
-        titleInput.setText(note.content)
+        contentInput.setText(note.content)
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Edit Note")
@@ -128,7 +136,7 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
             lastModified = System.currentTimeMillis()
         )
 
-        // Save new note to Firebase
+        // Save new note to Firebase using dog ID
         saveNoteToFirebase(userId, note)
     }
 
@@ -152,13 +160,14 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
         deleteNoteFromFirebase(userId, note)
     }
 
-    private fun loadNotesFromFirebase(dogName: String) {
+    private fun loadNotesFromFirebase(dogId: String) {
         val userId = auth.currentUser?.uid ?: return
 
         firestore.collection("users")
             .document(userId)
+            .collection("dogs")
+            .document(dogId) // Use dog ID instead of name
             .collection("notes")
-            .whereEqualTo("dogName", dogName)
             .orderBy("lastModified", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documents ->
@@ -179,12 +188,13 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
     }
 
     private fun saveNoteToFirebase(userId: String, note: DogNote) {
-        // Use a simpler path structure for notes
         firestore.collection("users")
             .document(userId)
+            .collection("dogs")
+            .document(currentDogId) // Use dog ID instead of name
             .collection("notes")
-            .document("${currentDogName}_${note.id}")
-            .set(note.copy(dogName = currentDogName)) // Add dog name to note data
+            .document(note.id)
+            .set(note)
             .addOnSuccessListener {
                 // Add to local list for immediate UI update
                 notesList.add(0, note)
@@ -202,9 +212,11 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
     private fun updateNoteInFirebase(userId: String, note: DogNote) {
         firestore.collection("users")
             .document(userId)
+            .collection("dogs")
+            .document(currentDogId) // Use dog ID instead of name
             .collection("notes")
-            .document("${currentDogName}_${note.id}")
-            .set(note.copy(dogName = currentDogName))
+            .document(note.id)
+            .set(note)
             .addOnSuccessListener {
                 // Update local list to reflect changes immediately
                 val index = notesList.indexOfFirst { it.id == note.id }
@@ -223,8 +235,10 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
     private fun deleteNoteFromFirebase(userId: String, note: DogNote) {
         firestore.collection("users")
             .document(userId)
+            .collection("dogs")
+            .document(currentDogId) // Use dog ID instead of name
             .collection("notes")
-            .document("${currentDogName}_${note.id}")
+            .document(note.id)
             .delete()
             .addOnSuccessListener {
                 // Remove from local list to update UI

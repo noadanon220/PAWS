@@ -10,10 +10,10 @@ import com.danono.paws.R
 import com.danono.paws.model.Dog
 import com.danono.paws.utilities.ImageLoader
 
-// Adapter class that connects the list of Dog objects to the RecyclerView
+// Adapter class that connects the list of Dog objects with their IDs to the RecyclerView
 class DogAdapter(
-    private val dogList: List<Dog>,
-    private val onDogClick: (Dog) -> Unit // Callback function for dog card clicks
+    private val dogList: List<Pair<Dog, String>>, // Pair of Dog and its Firebase document ID
+    private val onDogClick: (Dog, String) -> Unit // Callback function for dog card clicks with dog and ID
 ) : RecyclerView.Adapter<DogAdapter.DogViewHolder>() {
 
     // ViewHolder class to access each view inside the item_dog_card layout
@@ -30,15 +30,15 @@ class DogAdapter(
     }
 
     override fun onBindViewHolder(holder: DogViewHolder, position: Int) {
-        val dog = dogList[position]
+        val (dog, dogId) = dogList[position]
         holder.dogName.text = dog.name
 
         // Use ImageLoader instead of direct Glide calls
         ImageLoader.getInstance().loadDogImage(dog.imageUrl, holder.dogImage)
 
-        // Set click listener on the entire card
+        // Set click listener on the entire card - pass both dog and dogId
         holder.itemView.setOnClickListener {
-            onDogClick(dog)
+            onDogClick(dog, dogId)
         }
     }
 
