@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.danono.paws.R
 import com.danono.paws.adapters.ActivitiesAdapter
@@ -114,15 +115,22 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
         )
 
         activitiesAdapter = ActivitiesAdapter(activityCards) { card ->
-            Toast.makeText(requireContext(), "Clicked on ${card.title}", Toast.LENGTH_SHORT).show()
+            when (card.title) {
+                "Notes" -> {
+                    // Navigate to Notes fragment
+                    findNavController().navigate(R.id.action_dogProfileFragment_to_dogNotesFragment)
+                }
+                else -> {
+                    Toast.makeText(requireContext(), "Clicked on ${card.title}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         binding.dogProfileRECYCLERActivities.apply {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             adapter = activitiesAdapter
         }
-    }
-    override fun onDestroyView() {
+    }    override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
