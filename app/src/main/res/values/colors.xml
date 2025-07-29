@@ -18,11 +18,12 @@
     <color name="Secondary_blue">#DBEAFE</color>"
 
 
+    <color name="orange_600">#EA580C</color>
+    <color name="orange_700">#C2410C</color>
 
-
-
-
-
+    <color name="purple_100">#F3E5F5</color>
+    <color name="purple_600">#9C27B0</color>
+    <color name="bg_light_grey">#FAFAFA</color>
 
 
     <color name="bg_grey">#F3F4F6</color>

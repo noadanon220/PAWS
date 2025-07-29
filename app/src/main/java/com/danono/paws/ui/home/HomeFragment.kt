@@ -18,8 +18,7 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView
     private val binding get() = _binding!!
 
     private lateinit var sharedViewModel: SharedDogsViewModel
@@ -53,20 +52,20 @@ class HomeFragment : Fragment() {
             sharedViewModel.loadDogsFromFirestore(it)
         }
 
-        // Initialize adapter with click listener
-        adapter = DogAdapter(emptyList()) { dog ->
-            // Handle dog card click - save selected dog and navigate to profile
-            sharedViewModel.selectDog(dog)
+        // Initialize adapter with click listener that passes both dog and dogId
+        adapter = DogAdapter(emptyList()) { dog, dogId ->
+            // Handle dog card click - save selected dog with ID and navigate to profile
+            sharedViewModel.selectDog(dog, dogId)
             findNavController().navigate(R.id.action_navigation_home_to_dogProfileFragment)
         }
 
         binding.homeRVDogs.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.homeRVDogs.adapter = adapter
 
-        sharedViewModel.dogs.observe(viewLifecycleOwner) { dogs ->
-            adapter = DogAdapter(dogs) { dog ->
-                // Handle dog card click - save selected dog and navigate to profile
-                sharedViewModel.selectDog(dog)
+        sharedViewModel.dogs.observe(viewLifecycleOwner) { dogsWithIds ->
+            adapter = DogAdapter(dogsWithIds) { dog, dogId ->
+                // Handle dog card click - save selected dog with ID and navigate to profile
+                sharedViewModel.selectDog(dog, dogId)
                 findNavController().navigate(R.id.action_navigation_home_to_dogProfileFragment)
             }
             binding.homeRVDogs.adapter = adapter

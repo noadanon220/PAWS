@@ -3,22 +3,18 @@ package com.danono.paws.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.danono.paws.R
+import com.danono.paws.model.DogActivityCard
 import com.google.android.material.card.MaterialCardView
 
-class ActivitiesAdapter(private val activities: List<String>) :
-    RecyclerView.Adapter<ActivitiesAdapter.ActivityViewHolder>() {
-
-    private val backgroundColors = listOf(
-        R.color.Secondary_pink,
-        R.color.Secondary_yellow,
-        R.color.Secondary_orange,
-        R.color.Secondary_green,
-        R.color.Secondary_blue
-    )
+class ActivitiesAdapter(
+    private val activityCards: List<DogActivityCard>,
+    private val onCardClick: (DogActivityCard) -> Unit = {}
+) : RecyclerView.Adapter<ActivitiesAdapter.ActivityViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -27,19 +23,37 @@ class ActivitiesAdapter(private val activities: List<String>) :
     }
 
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
-        val activity = activities[position]
-        holder.title.text = activity
+        val activityCard = activityCards[position]
+        holder.bind(activityCard)
 
-        // Set different background color for each MaterialCardView
-        val colorRes = backgroundColors[position % backgroundColors.size]
-        val color = ContextCompat.getColor(holder.itemView.context, colorRes)
-        holder.cardView.setCardBackgroundColor(color)
+        holder.itemView.setOnClickListener {
+            onCardClick(activityCard)
+        }
     }
 
-    override fun getItemCount(): Int = activities.size
+    override fun getItemCount(): Int = activityCards.size
 
     class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.card_LBL_title)
-        val cardView: MaterialCardView = itemView as MaterialCardView
+        private val title: TextView = itemView.findViewById(R.id.card_LBL_title)
+        private val icon: ImageView = itemView.findViewById(R.id.card_IMG_icon)
+        private val cardView: MaterialCardView = itemView as MaterialCardView
+
+        fun bind(activityCard: DogActivityCard) {
+            title.text = activityCard.title
+            icon.setImageResource(activityCard.iconRes)
+
+            // Set background color
+            val backgroundColor = ContextCompat.getColor(itemView.context, activityCard.backgroundColor)
+            cardView.setCardBackgroundColor(backgroundColor)
+
+            // Set foreground color for text and icon
+            val foregroundColor = ContextCompat.getColor(itemView.context, activityCard.foregroundColor)
+            title.setTextColor(foregroundColor)
+            icon.setColorFilter(foregroundColor)
+
+            // Set stroke color
+            cardView.strokeColor = foregroundColor
+            cardView.strokeWidth = 2 // 2dp stroke width
+        }
     }
 }

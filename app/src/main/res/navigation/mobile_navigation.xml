@@ -43,7 +43,20 @@
         android:id="@+id/dogProfileFragment"
         android:name="com.danono.paws.ui.mydogs.DogProfileFragment"
         android:label="Dog Profile"
-        tools:layout="@layout/fragment_dog_profile" />
+        tools:layout="@layout/fragment_dog_profile">
+
+        <!-- Navigate from DogProfile to Notes -->
+        <action
+            android:id="@+id/action_dogProfileFragment_to_dogNotesFragment"
+            app:destination="@id/dogNotesFragment" />
+    </fragment>
+
+    <!-- DOG NOTES -->
+    <fragment
+        android:id="@+id/dogNotesFragment"
+        android:name="com.danono.paws.ui.mydogs.DogNotesFragment"
+        android:label="Dog Notes"
+        tools:layout="@layout/fragment_dog_notes" />
 
     <!-- REMINDERS -->
     <fragment

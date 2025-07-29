@@ -239,13 +239,13 @@ class AddDogFragment : Fragment() {
     }
 
     private fun saveDogToFirestore(
-        userId: String,
-        name: String,
-        breed: String,
-        birthDate: Long,
-        tags: List<String>,
-        colors: List<String>,
-        imageUrl: String
+    userId: String,
+    name: String,
+    breed: String,
+    birthDate: Long,
+    tags: List<String>,
+    colors: List<String>,
+    imageUrl: String
     ) {
         val dog = Dog(
             name = name,
@@ -258,21 +258,22 @@ class AddDogFragment : Fragment() {
             breedName = breed
         )
 
+        // Use add() to generate automatic ID, then save the ID with the dog
         FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
             .collection("dogs")
-            .add(dog)
-            .addOnSuccessListener {
+            .add(dog) // This generates automatic unique ID
+            .addOnSuccessListener { documentReference ->
+                val dogId = documentReference.id
                 Toast.makeText(requireContext(), "Dog added successfully 🐶", Toast.LENGTH_SHORT).show()
-                sharedViewModel.addDog(dog)
+                sharedViewModel.addDog(dog, dogId) // Pass both dog and generated ID
                 findNavController().navigate(R.id.action_addDogFragment_to_navigation_home)
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to add dog", Toast.LENGTH_SHORT).show()
             }
     }
-
     // ================================
     // UI SETUP METHODS
     // ================================
