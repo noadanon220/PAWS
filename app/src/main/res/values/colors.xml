@@ -76,5 +76,15 @@
         <color name="bg_light">#F9FAFB</color>
 
 
+    <!-- Poop Colors -->
+    <color name="poop_color_normal">#8B4513</color>
+    <color name="poop_color_dark">#654321</color>
+    <color name="poop_color_light">#D2B48C</color>
+    <color name="poop_color_yellow">#FFD700</color>
+    <color name="poop_color_green">#228B22</color>
+    <color name="poop_color_red">#DC143C</color>
+    <color name="poop_color_black">#000000</color>
+    <color name="poop_color_white">#F5F5F5</color>
+
 
 </resources>
