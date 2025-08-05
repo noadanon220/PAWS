@@ -36,24 +36,20 @@ class ActivitiesAdapter(
     class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val title: TextView = itemView.findViewById(R.id.card_LBL_title)
         private val icon: ImageView = itemView.findViewById(R.id.card_IMG_icon)
-        private val cardView: MaterialCardView = itemView as MaterialCardView
+        // Fix: Directly find the MaterialCardView by its ID instead of casting from parent
+        private val cardView: MaterialCardView = itemView.findViewById(R.id.activity_card)
 
         fun bind(activityCard: DogActivityCard) {
             title.text = activityCard.title
             icon.setImageResource(activityCard.iconRes)
 
-            // Set background color
+            // Set background color for the card
             val backgroundColor = ContextCompat.getColor(itemView.context, activityCard.backgroundColor)
             cardView.setCardBackgroundColor(backgroundColor)
 
-            // Set foreground color for text and icon
+            // Set icon color
             val foregroundColor = ContextCompat.getColor(itemView.context, activityCard.foregroundColor)
-            title.setTextColor(foregroundColor)
             icon.setColorFilter(foregroundColor)
-
-            // Set stroke color
-            cardView.strokeColor = foregroundColor
-            cardView.strokeWidth = 2 // 2dp stroke width
         }
     }
 }

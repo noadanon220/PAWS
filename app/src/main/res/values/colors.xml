@@ -7,7 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    
+
     <color name="Primary_pink">#EC4899</color>
     <color name="Primary_yellow">#facc15</color>
 
@@ -69,6 +69,12 @@
     <color name="lima_800">#33581c</color>
     <color name="lima_900">#2c4b1c</color>
     <color name="lima_950">#14290a</color>
+
+
+
+        <!-- Background colors -->
+        <color name="bg_light">#F9FAFB</color>
+
 
 
 </resources>
