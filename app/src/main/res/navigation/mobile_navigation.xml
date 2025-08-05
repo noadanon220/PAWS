@@ -49,6 +49,11 @@
         <action
             android:id="@+id/action_dogProfileFragment_to_dogNotesFragment"
             app:destination="@id/dogNotesFragment" />
+
+        <!-- Navigate from DogProfile to Walks -->
+        <action
+            android:id="@+id/action_dogProfileFragment_to_dogWalksFragment"
+            app:destination="@id/dogWalksFragment" />
     </fragment>
 
     <!-- DOG NOTES -->
@@ -57,6 +62,13 @@
         android:name="com.danono.paws.ui.mydogs.DogNotesFragment"
         android:label="Dog Notes"
         tools:layout="@layout/fragment_dog_notes" />
+
+    <!-- DOG WALKS -->
+    <fragment
+        android:id="@+id/dogWalksFragment"
+        android:name="com.danono.paws.ui.mydogs.DogWalksFragment"
+        android:label="Dog Walks"
+        tools:layout="@layout/fragment_dog_walks" />
 
     <!-- REMINDERS -->
     <fragment
