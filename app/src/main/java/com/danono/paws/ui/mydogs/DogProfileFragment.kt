@@ -116,6 +116,7 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
         )
 
         activitiesAdapter = ActivitiesAdapter(activityCards) { card ->
+// Add this case to the when statement in setupActivityCards() method in DogProfileFragment.kt
             when (card.title) {
                 "Notes" -> {
                     // Navigate to Notes fragment
@@ -125,11 +126,14 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
                     // Navigate to Walks fragment
                     findNavController().navigate(R.id.action_dogProfileFragment_to_dogWalksFragment)
                 }
+                "Poop" -> {
+                    // Navigate to Poop fragment
+                    findNavController().navigate(R.id.action_dogProfileFragment_to_dogPoopFragment)
+                }
                 else -> {
                     Toast.makeText(requireContext(), "Clicked on ${card.title}", Toast.LENGTH_SHORT).show()
                 }
-            }
-        }
+            }        }
 
         binding.dogProfileRECYCLERActivities.apply {
             // Use GridLayoutManager with 3 columns instead of LinearLayoutManager
