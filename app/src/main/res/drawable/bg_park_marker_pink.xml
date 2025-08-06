@@ -1,5 +1,3 @@
-<!-- bg_park_marker_pink.xml -->
-<!-- Create: app/src/main/res/drawable/bg_park_marker_pink.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
     <solid android:color="@color/Primary_pink" />

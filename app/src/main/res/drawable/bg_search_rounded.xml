@@ -1,5 +1,3 @@
-<!-- bg_search_rounded.xml -->
-<!-- Create: app/src/main/res/drawable/bg_search_rounded.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <solid android:color="@color/white" />
