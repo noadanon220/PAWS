@@ -24,6 +24,8 @@ android {
             "DOG_API_KEY",
             "\"${project.findProperty("DOG_API_KEY")}\""
         )
+
+        manifestPlaceholders["MAPS_API_KEY"] = project.findProperty("MAPS_API_KEY") ?: ""
     }
 
     buildTypes {
@@ -63,8 +65,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation (libs.retrofit)
-    implementation (libs.converter.gson)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.material.v1110)
 
@@ -86,5 +88,9 @@ dependencies {
 
     // glide:
     implementation(libs.glide)
+
+    // Google Maps
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
 }
