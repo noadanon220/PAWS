@@ -16,5 +16,10 @@
         android:icon="@drawable/location_ic"
         android:title="@string/title_dog_parks" />
 
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Settings" />
+
 
 </menu>
