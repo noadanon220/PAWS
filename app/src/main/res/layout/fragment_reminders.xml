@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Header with Title and Navigation -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,15 +28,6 @@
                 android:textStyle="bold"
                 android:textColor="@color/Primary_pink"
                 android:layout_marginBottom="8dp" />
-
-            <!-- Subtitle -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Manage your pet's schedule"
-                android:textSize="16sp"
-                android:textColor="@color/gray_dark"
-                android:layout_marginBottom="16dp" />
 
             <!-- Month Navigation -->
             <LinearLayout
@@ -79,144 +70,44 @@
 
             </LinearLayout>
 
-            <!-- Calendar Grid -->
-            <LinearLayout
+            <!-- Kizitonwose Calendar View -->
+            <com.kizitonwose.calendar.view.CalendarView
+                android:id="@+id/calendarView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- Days of Week Header -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp"
-                    android:paddingHorizontal="4dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="S"
-                        android:textAlignment="center"
-                        android:textColor="@color/gray_dark"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="M"
-                        android:textAlignment="center"
-                        android:textColor="@color/gray_dark"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="T"
-                        android:textAlignment="center"
-                        android:textColor="@color/gray_dark"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="W"
-                        android:textAlignment="center"
-                        android:textColor="@color/gray_dark"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="T"
-                        android:textAlignment="center"
-                        android:textColor="@color/gray_dark"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="F"
-                        android:textAlignment="center"
-                        android:textColor="@color/gray_dark"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="S"
-                        android:textAlignment="center"
-                        android:textColor="@color/gray_dark"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <!-- Calendar Grid -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/calendarRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:nestedScrollingEnabled="false" />
-
-            </LinearLayout>
+                android:layout_height="250dp"
+                android:layout_marginBottom="16dp"
+                app:cv_dayViewResource="@layout/calendar_day_layout" />
 
         </LinearLayout>
 
-        <!-- Upcoming Section -->
+        <!-- Selected Date Info -->
         <LinearLayout
+            android:id="@+id/selectedDateLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:background="@color/Secondary_pink"
+            android:visibility="gone">
 
-            <com.google.android.material.button.MaterialButton
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+            <TextView
+                android:id="@+id/selectedDateText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Today's Reminders"
+                android:textColor="@color/Primary_pink"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/reminderCountText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="All"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                app:backgroundTint="@color/Primary_pink"
-                app:cornerRadius="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Upcoming"
-                android:textColor="@color/black"
-                app:backgroundTint="@color/white"
-                app:cornerRadius="20dp"
-                app:strokeColor="@color/bg_grey"
-                app:strokeWidth="1dp" />
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Past"
-                android:textColor="@color/black"
-                app:backgroundTint="@color/white"
-                app:cornerRadius="20dp"
-                app:strokeColor="@color/bg_grey"
-                app:strokeWidth="1dp" />
+                android:text="3 reminders"
+                android:textColor="@color/Primary_pink"
+                android:textSize="14sp" />
 
         </LinearLayout>
 

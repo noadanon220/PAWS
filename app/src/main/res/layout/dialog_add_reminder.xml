@@ -1,168 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <!-- Title Field -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:hint="Reminder Title"
-        app:boxBackgroundMode="outline"
-        app:boxBackgroundColor="@color/bg_light_grey"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/reminderTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textCapSentences"
-            android:maxLines="1" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Location Field -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:hint="Location (Optional)"
-        app:boxBackgroundMode="outline"
-        app:boxBackgroundColor="@color/bg_light_grey"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/reminderLocation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textCapSentences"
-            android:maxLines="1" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Date and Time Selection -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date and Time"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_marginBottom="8dp" />
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- Date Picker Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/datePickerButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+        <!-- Title Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="Select Date"
-            android:textColor="@color/Primary_pink"
-            android:textSize="14sp"
-            app:strokeColor="@color/Primary_pink"
-            app:strokeWidth="2dp"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/calendar_ic"
-            app:iconTint="@color/Primary_pink" />
+            android:layout_marginBottom="16dp"
+            android:hint="Reminder Title"
+            app:boxBackgroundMode="outline"
+            app:boxBackgroundColor="@color/bg_light_grey"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
-        <!-- Time Picker Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/timePickerButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/reminderTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:maxLines="1" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Reminder Type Dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:text="Select Time"
-            android:textColor="@color/Primary_pink"
+            android:layout_marginBottom="16dp"
+            android:hint="Reminder Type"
+            app:boxBackgroundMode="outline"
+            app:boxBackgroundColor="@color/bg_light_grey"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:endIconMode="dropdown_menu">
+
+            <AutoCompleteTextView
+                android:id="@+id/reminderTypeSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Dog Selection -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Select Dog"
+            app:boxBackgroundMode="outline"
+            app:boxBackgroundColor="@color/bg_light_grey"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:endIconMode="dropdown_menu">
+
+            <AutoCompleteTextView
+                android:id="@+id/dogSelectionSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Selected Date Display -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date and Time"
             android:textSize="14sp"
-            app:strokeColor="@color/Primary_pink"
-            app:strokeWidth="2dp"
-            app:cornerRadius="12dp" />
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <!-- Date Picker Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/datePickerButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Select Date"
+                android:textColor="@color/Primary_pink"
+                android:textSize="14sp"
+                app:strokeColor="@color/Primary_pink"
+                app:strokeWidth="2dp"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/calendar_ic"
+                app:iconTint="@color/Primary_pink" />
+
+            <!-- Time Picker Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/timePickerButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Select Time"
+                android:textColor="@color/Primary_pink"
+                android:textSize="14sp"
+                app:strokeColor="@color/Primary_pink"
+                app:strokeWidth="2dp"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
+
+        <!-- Notes Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Notes (Optional)"
+            app:boxBackgroundMode="outline"
+            app:boxBackgroundColor="@color/bg_light_grey"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/reminderNotes"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine|textCapSentences"
+                android:maxLines="5" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 
-    <!-- Reminder Type (Optional Enhancement) -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Type"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_marginBottom="8dp" />
-
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/reminderTypeChipGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:singleSelection="true"
-        app:chipSpacing="8dp">
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipVetAppointment"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🏥 Vet"
-            android:checked="true"
-            app:chipBackgroundColor="@color/Secondary_pink"
-            app:checkedIconTint="@color/Primary_pink" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipVaccination"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="💉 Vaccination"
-            app:chipBackgroundColor="@color/Secondary_pink"
-            app:checkedIconTint="@color/Primary_pink" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipGrooming"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="✂️ Grooming"
-            app:chipBackgroundColor="@color/Secondary_pink"
-            app:checkedIconTint="@color/Primary_pink" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipMedication"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="💊 Medication"
-            app:chipBackgroundColor="@color/Secondary_pink"
-            app:checkedIconTint="@color/Primary_pink" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipOther"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📅 Other"
-            app:chipBackgroundColor="@color/Secondary_pink"
-            app:checkedIconTint="@color/Primary_pink" />
-
-    </com.google.android.material.chip.ChipGroup>
-
-</LinearLayout>
+</ScrollView>
