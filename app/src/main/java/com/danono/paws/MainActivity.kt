@@ -56,7 +56,8 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.navigation_home,
                 R.id.navigation_reminders,
-                R.id.navigation_dog_parks
+                R.id.navigation_dog_parks,
+                R.id.navigation_settings
             )
         )
 
