@@ -3,6 +3,7 @@ package com.danono.paws.ui.reminders
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -242,28 +243,36 @@ class RemindersFragment : Fragment() {
     private fun loadReminders() {
         val userId = auth.currentUser?.uid ?: return
 
+        Log.d("RemindersFragment", "Loading reminders for user: $userId")
+
         firestore.collection("users")
             .document(userId)
             .collection("reminders")
             .orderBy("dateTime", Query.Direction.ASCENDING)
             .get()
             .addOnSuccessListener { documents ->
+                Log.d("RemindersFragment", "Found ${documents.size()} reminders")
+
                 remindersList.clear()
                 for (document in documents) {
                     val reminder = document.toObject(Reminder::class.java)
+                    Log.d("RemindersFragment", "Reminder: ${reminder.title}, DateTime: ${reminder.dateTime}")
                     remindersList.add(reminder)
                 }
+
                 remindersAdapter.notifyDataSetChanged()
                 binding.calendarView.notifyCalendarChanged()
                 updateEmptyState(remindersList.isEmpty())
+
+                Log.d("RemindersFragment", "Updated UI with ${remindersList.size} reminders")
             }
-            .addOnFailureListener {
+            .addOnFailureListener { exception ->
+                Log.e("RemindersFragment", "Failed to load reminders", exception)
                 remindersList.clear()
                 remindersAdapter.notifyDataSetChanged()
                 updateEmptyState(true)
             }
     }
-
     private fun showAddReminderDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_reminder, null)
         val titleInput = dialogView.findViewById<TextInputEditText>(R.id.reminderTitle)
@@ -511,35 +520,20 @@ class RemindersFragment : Fragment() {
             .document(reminder.id)
             .set(reminder)
             .addOnSuccessListener {
-                remindersList.add(reminder)
-                remindersList.sortBy { it.dateTime }
-                remindersAdapter.notifyDataSetChanged()
-                binding.calendarView.notifyCalendarChanged()
-                updateEmptyState(remindersList.isEmpty())
-                // Check if fragment is still attached
-                if (!isAdded) {
-                    return@addOnSuccessListener
-                }
-                
-                loadReminders()
                 // Check if fragment is still attached before showing toast
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Reminder saved successfully", Toast.LENGTH_SHORT).show()
                 }
+
+                loadReminders()
             }
             .addOnFailureListener { exception ->
-                // Check if fragment is still attached
-                if (!isAdded) {
-                    return@addOnFailureListener
-                }
-                
                 // Check if fragment is still attached before showing toast
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Failed to save reminder: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }
-
     private fun updateReminderInFirebase(userId: String, reminder: Reminder) {
         firestore.collection("users")
             .document(userId)
@@ -547,20 +541,18 @@ class RemindersFragment : Fragment() {
             .document(reminder.id)
             .set(reminder)
             .addOnSuccessListener {
-                val index = remindersList.indexOfFirst { it.id == reminder.id }
-                if (index != -1) {
-                    remindersList[index] = reminder
-                    remindersList.sortBy { it.dateTime }
-                    remindersAdapter.notifyDataSetChanged()
-                    binding.calendarView.notifyCalendarChanged()
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Reminder updated", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(requireContext(), "Reminder updated", Toast.LENGTH_SHORT).show()
+
+                loadReminders()
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to update reminder: ${exception.message}", Toast.LENGTH_LONG).show()
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Failed to update reminder: ${exception.message}", Toast.LENGTH_LONG).show()
+                }
             }
     }
-
     private fun deleteReminderFromFirebase(userId: String, reminder: Reminder) {
         firestore.collection("users")
             .document(userId)
@@ -568,30 +560,14 @@ class RemindersFragment : Fragment() {
             .document(reminder.id)
             .delete()
             .addOnSuccessListener {
-                val index = remindersList.indexOf(reminder)
-                if (index != -1) {
-                    remindersList.removeAt(index)
-                    remindersAdapter.notifyItemRemoved(index)
-                    binding.calendarView.notifyCalendarChanged()
-                    updateEmptyState(remindersList.isEmpty())
-                }
-                // Check if fragment is still attached
-                if (!isAdded) {
-                    return@addOnSuccessListener
-                }
-                
-                loadReminders()
                 // Check if fragment is still attached before showing toast
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Reminder deleted successfully", Toast.LENGTH_SHORT).show()
                 }
+
+                loadReminders()
             }
             .addOnFailureListener { exception ->
-                // Check if fragment is still attached
-                if (!isAdded) {
-                    return@addOnFailureListener
-                }
-                
                 // Check if fragment is still attached before showing toast
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Failed to delete reminder: ${exception.message}", Toast.LENGTH_SHORT).show()
@@ -607,6 +583,9 @@ class RemindersFragment : Fragment() {
         } else {
             binding.emptyStateLayout.visibility = View.GONE
             binding.remindersRecyclerView.visibility = View.VISIBLE
+            if (selectedCalendarDate != null) {
+                binding.selectedDateLayout.visibility = View.VISIBLE
+            }
         }
     }
 
