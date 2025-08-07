@@ -48,24 +48,34 @@
                 android:id="@+id/reminderTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Vet Appointment"
+                android:text="🏥 Vet Appointment"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp" />
 
             <TextView
-                android:id="@+id/reminderLocation"
+                android:id="@+id/reminderDogName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Pet Care Clinic, Tel Aviv"
+                android:text="🐕 Buddy"
+                android:textColor="@color/Primary_pink"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/reminderNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Annual checkup and vaccinations"
                 android:textColor="@color/text_gray_dark"
                 android:textSize="14sp"
                 android:layout_marginBottom="8dp"
-                android:drawableStart="@drawable/location_ic"
-                android:drawablePadding="8dp"
-                android:drawableTint="@color/gray_dark"
-                android:gravity="center_vertical" />
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:visibility="visible" />
 
         </LinearLayout>
 

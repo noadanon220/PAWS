@@ -6,22 +6,36 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.danono.paws.R
 import com.danono.paws.adapters.RemindersAdapter
-import com.danono.paws.adapters.CalendarRemindersAdapter
 import com.danono.paws.databinding.FragmentRemindersBinding
 import com.danono.paws.model.Reminder
-import com.danono.paws.model.CalendarDayReminder
+import com.danono.paws.model.ReminderType
+import com.danono.paws.model.Dog
+import com.danono.paws.ui.mydogs.SharedDogsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.CalendarMonth
+import com.kizitonwose.calendar.core.DayPosition
+import com.kizitonwose.calendar.view.CalendarView
+import com.kizitonwose.calendar.view.MonthDayBinder
+import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
+import com.kizitonwose.calendar.view.ViewContainer
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.*
 
 class RemindersFragment : Fragment() {
@@ -30,10 +44,10 @@ class RemindersFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var remindersAdapter: RemindersAdapter
-    private lateinit var calendarAdapter: CalendarRemindersAdapter
     private lateinit var remindersViewModel: RemindersViewModel
+    private lateinit var sharedDogsViewModel: SharedDogsViewModel
     private val remindersList = mutableListOf<Reminder>()
-    private val calendarDays = mutableListOf<CalendarDayReminder>()
+    private val dogsList = mutableListOf<Pair<Dog, String>>()
 
     // Firebase instances
     private val firestore = FirebaseFirestore.getInstance()
@@ -42,15 +56,15 @@ class RemindersFragment : Fragment() {
     // Calendar variables
     private var selectedDate = ""
     private var selectedTime = ""
-    private var calendar = Calendar.getInstance()
-    private var currentSelectedDate = ""
+    private var selectedCalendarDate: LocalDate? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        remindersViewModel = ViewModelProvider(this).get(RemindersViewModel::class.java)
+        remindersViewModel = ViewModelProvider(this)[RemindersViewModel::class.java]
+        sharedDogsViewModel = ViewModelProvider(requireActivity())[SharedDogsViewModel::class.java]
         _binding = FragmentRemindersBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -60,144 +74,140 @@ class RemindersFragment : Fragment() {
 
         setupCalendar()
         setupRecyclerView()
-        setupCalendarRecyclerView()
         setupFab()
+        loadDogs()
         loadReminders()
-        updateCalendarHeader()
-        generateCalendarDays()
-
-        // Set today as default selected date
-        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        currentSelectedDate = today
+        setupMonthNavigation()
     }
 
     private fun setupCalendar() {
-        // Month navigation
+        val currentMonth = YearMonth.now()
+        val startMonth = currentMonth.minusMonths(100)
+        val endMonth = currentMonth.plusMonths(100)
+
+        binding.calendarView.setup(startMonth, endMonth, java.time.DayOfWeek.SUNDAY)
+        binding.calendarView.scrollToMonth(currentMonth)
+
+        // Update month/year text
+        updateMonthYearText(currentMonth)
+
+        // Day binder
+        binding.calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
+            override fun create(view: View) = DayViewContainer(view)
+            override fun bind(container: DayViewContainer, data: CalendarDay) {
+                container.bind(data)
+            }
+        }
+
+        // Month scroll listener
+        binding.calendarView.monthScrollListener = { calendarMonth ->
+            updateMonthYearText(calendarMonth.yearMonth)
+        }
+    }
+
+    private fun setupMonthNavigation() {
         binding.previousMonthButton.setOnClickListener {
-            calendar.add(Calendar.MONTH, -1)
-            updateCalendarHeader()
-            generateCalendarDays()
+            binding.calendarView.findFirstVisibleMonth()?.let { month ->
+                binding.calendarView.scrollToMonth(month.yearMonth.minusMonths(1))
+            }
         }
 
         binding.nextMonthButton.setOnClickListener {
-            calendar.add(Calendar.MONTH, 1)
-            updateCalendarHeader()
-            generateCalendarDays()
+            binding.calendarView.findFirstVisibleMonth()?.let { month ->
+                binding.calendarView.scrollToMonth(month.yearMonth.plusMonths(1))
+            }
         }
     }
 
-    private fun setupCalendarRecyclerView() {
-        calendarAdapter = CalendarRemindersAdapter(calendarDays) { selectedDay ->
-            // Handle day selection
-            handleDaySelection(selectedDay)
-        }
-
-        binding.calendarRecyclerView.apply {
-            layoutManager = androidx.recyclerview.widget.GridLayoutManager(requireContext(), 7)
-            adapter = calendarAdapter
-        }
+    private fun updateMonthYearText(yearMonth: YearMonth) {
+        val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
+        binding.monthYearText.text = yearMonth.format(formatter)
     }
 
-    private fun handleDaySelection(selectedDay: CalendarDayReminder) {
-        // Update selection state
-        calendarDays.forEach { it.isSelected = false }
-        val dayIndex = calendarDays.indexOf(selectedDay)
-        if (dayIndex != -1) {
-            calendarDays[dayIndex] = selectedDay.copy(isSelected = true)
-            currentSelectedDate = selectedDay.date
-        }
-        calendarAdapter.notifyDataSetChanged()
+    inner class DayViewContainer(view: View) : ViewContainer(view) {
+        val dayText = view.findViewById<android.widget.TextView>(R.id.calendarDayText)
+        val indicator = view.findViewById<View>(R.id.calendarDayIndicator)
 
-        // Filter reminders for selected date
-        filterRemindersForDate(selectedDay.date)
-    }
+        fun bind(day: CalendarDay) {
+            dayText.text = day.date.dayOfMonth.toString()
 
-    private fun generateCalendarDays() {
-        calendarDays.clear()
+            // Reset styling
+            dayText.setTextColor(resources.getColor(R.color.black, null))
+            view.background = null
+            indicator.visibility = View.GONE
 
-        val tempCalendar = Calendar.getInstance()
-        tempCalendar.time = calendar.time
-        tempCalendar.set(Calendar.DAY_OF_MONTH, 1)
+            when (day.position) {
+                DayPosition.MonthDate -> {
+                    dayText.visibility = View.VISIBLE
 
-        val firstDayOfWeek = tempCalendar.get(Calendar.DAY_OF_WEEK) - 1
-        val daysInMonth = tempCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                    // Check if day has reminders
+                    val hasReminders = remindersList.any { reminder ->
+                        val reminderDate = LocalDate.ofEpochDay(reminder.dateTime / (24 * 60 * 60 * 1000))
+                        reminderDate == day.date
+                    }
 
-        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val dayNames = arrayOf("S", "M", "T", "W", "T", "F", "S")
+                    if (hasReminders) {
+                        indicator.visibility = View.VISIBLE
+                    }
 
-        // Add empty cells for days before the first day of the month
-        for (i in 0 until firstDayOfWeek) {
-            calendarDays.add(
-                CalendarDayReminder(
-                    date = "",
-                    dayName = "",
-                    dayNumber = 0,
-                    isToday = false,
-                    isSelected = false,
-                    hasReminders = false,
-                    reminderCount = 0
-                )
-            )
-        }
+                    // Highlight selected date
+                    if (day.date == selectedCalendarDate) {
+                        view.setBackgroundResource(R.drawable.bg_circle_selected)
+                        dayText.setTextColor(resources.getColor(R.color.white, null))
+                    }
 
-        // Add days of the month
-        for (day in 1..daysInMonth) {
-            tempCalendar.set(Calendar.DAY_OF_MONTH, day)
-            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(tempCalendar.time)
-            val dayOfWeek = (firstDayOfWeek + day - 1) % 7
-
-            val hasReminders = remindersList.any { reminder ->
-                val reminderDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(reminder.dateTime))
-                reminderDate == dateString
+                    // Highlight today
+                    if (day.date == LocalDate.now()) {
+                        if (day.date != selectedCalendarDate) {
+                            dayText.setTextColor(resources.getColor(R.color.Primary_pink, null))
+                        }
+                    }
+                }
+                DayPosition.InDate, DayPosition.OutDate -> {
+                    dayText.visibility = View.INVISIBLE
+                }
             }
 
-            val reminderCount = remindersList.count { reminder ->
-                val reminderDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(reminder.dateTime))
-                reminderDate == dateString
+            view.setOnClickListener {
+                if (day.position == DayPosition.MonthDate) {
+                    selectDate(day.date)
+                }
             }
-
-            calendarDays.add(
-                CalendarDayReminder(
-                    date = dateString,
-                    dayName = dayNames[dayOfWeek],
-                    dayNumber = day,
-                    isToday = dateString == today,
-                    isSelected = dateString == currentSelectedDate,
-                    hasReminders = hasReminders,
-                    reminderCount = reminderCount
-                )
-            )
         }
-
-        calendarAdapter.notifyDataSetChanged()
     }
 
-    private fun filterRemindersForDate(selectedDate: String) {
-        if (selectedDate.isEmpty()) {
-            // Show all reminders if no specific date selected
-            remindersAdapter.notifyDataSetChanged()
-            return
-        }
+    private fun selectDate(date: LocalDate) {
+        selectedCalendarDate = date
+        binding.calendarView.notifyCalendarChanged()
 
-        val filteredReminders = remindersList.filter { reminder ->
-            val reminderDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(reminder.dateTime))
-            reminderDate == selectedDate
-        }
+        // Show selected date info
+        binding.selectedDateLayout.visibility = View.VISIBLE
+        val formatter = DateTimeFormatter.ofPattern("EEEE, MMMM d", Locale.getDefault())
+        binding.selectedDateText.text = date.format(formatter)
 
-        // Update the adapter with filtered results
-        // For now, we'll just refresh the whole list
-        // In a more advanced implementation, you could create a filtered adapter
-        remindersAdapter.notifyDataSetChanged()
+        // Filter reminders for this date
+        filterRemindersForDate(date)
     }
 
-    private fun updateCalendarHeader() {
-        val monthYear = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(calendar.time)
-        binding.monthYearText.text = monthYear
+    private fun filterRemindersForDate(date: LocalDate) {
+        val dateReminders = remindersList.filter { reminder ->
+            val reminderDate = LocalDate.ofEpochDay(reminder.dateTime / (24 * 60 * 60 * 1000))
+            reminderDate == date
+        }
+
+        binding.reminderCountText.text = "${dateReminders.size} reminders"
+
+        // Update adapter with filtered reminders
+        remindersAdapter = RemindersAdapter(dateReminders) { reminder ->
+            showEditReminderDialog(reminder)
+        }
+        binding.remindersRecyclerView.adapter = remindersAdapter
+
+        updateEmptyState(dateReminders.isEmpty())
     }
 
     private fun setupRecyclerView() {
         remindersAdapter = RemindersAdapter(remindersList) { reminder ->
-            // Handle reminder click (edit/view)
             showEditReminderDialog(reminder)
         }
 
@@ -211,6 +221,22 @@ class RemindersFragment : Fragment() {
         binding.fabAddReminder.setOnClickListener {
             showAddReminderDialog()
         }
+    }
+
+    private fun loadDogs() {
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("dogs")
+            .get()
+            .addOnSuccessListener { documents ->
+                dogsList.clear()
+                for (document in documents) {
+                    val dog = document.toObject(Dog::class.java)
+                    dogsList.add(Pair(dog, document.id))
+                }
+            }
     }
 
     private fun loadReminders() {
@@ -228,25 +254,47 @@ class RemindersFragment : Fragment() {
                     remindersList.add(reminder)
                 }
                 remindersAdapter.notifyDataSetChanged()
-                updateEmptyState()
-                generateCalendarDays() // Refresh calendar to show reminder indicators
+                binding.calendarView.notifyCalendarChanged()
+                updateEmptyState(remindersList.isEmpty())
             }
             .addOnFailureListener {
                 remindersList.clear()
                 remindersAdapter.notifyDataSetChanged()
-                updateEmptyState()
+                updateEmptyState(true)
             }
     }
 
     private fun showAddReminderDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_reminder, null)
         val titleInput = dialogView.findViewById<TextInputEditText>(R.id.reminderTitle)
-        val locationInput = dialogView.findViewById<TextInputEditText>(R.id.reminderLocation)
+        val typeSpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.reminderTypeSpinner)
+        val dogSpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.dogSelectionSpinner)
+        val notesInput = dialogView.findViewById<TextInputEditText>(R.id.reminderNotes)
         val dateButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.datePickerButton)
         val timeButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.timePickerButton)
 
-        // Reset selected date and time
-        selectedDate = ""
+        // Setup reminder type spinner
+        val reminderTypes = ReminderType.values().map { "${it.emoji} ${it.displayName}" }
+        val typeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, reminderTypes)
+        typeSpinner.setAdapter(typeAdapter)
+        typeSpinner.setText(reminderTypes[0], false)
+
+        // Setup dog selection spinner
+        val dogNames = dogsList.map { "${it.first.name}" }
+        val dogAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, dogNames)
+        dogSpinner.setAdapter(dogAdapter)
+        if (dogNames.isNotEmpty()) {
+            dogSpinner.setText(dogNames[0], false)
+        }
+
+        // Pre-fill date if a date was selected in calendar
+        selectedCalendarDate?.let { date ->
+            val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault())
+            selectedDate = date.format(formatter)
+            dateButton.text = selectedDate
+        }
+
+        // Reset time
         selectedTime = ""
 
         // Date picker
@@ -270,10 +318,24 @@ class RemindersFragment : Fragment() {
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
                 val title = titleInput.text.toString().trim()
-                val location = locationInput.text.toString().trim()
+                val notes = notesInput.text.toString().trim()
+                val selectedTypeText = typeSpinner.text.toString()
+                val selectedDogText = dogSpinner.text.toString()
 
-                if (title.isNotEmpty() && selectedDate.isNotEmpty() && selectedTime.isNotEmpty()) {
-                    addReminder(title, location, selectedDate, selectedTime)
+                if (title.isNotEmpty() && selectedDate.isNotEmpty() && selectedTime.isNotEmpty() && selectedDogText.isNotEmpty()) {
+                    // Find selected reminder type
+                    val reminderType = ReminderType.values().find {
+                        "${it.emoji} ${it.displayName}" == selectedTypeText
+                    } ?: ReminderType.OTHER
+
+                    // Find selected dog
+                    val selectedDog = dogsList.find { it.first.name == selectedDogText }
+
+                    if (selectedDog != null) {
+                        addReminder(title, reminderType, notes, selectedDate, selectedTime, selectedDog.second, selectedDog.first.name)
+                    } else {
+                        Toast.makeText(requireContext(), "Please select a valid dog", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
                 }
@@ -285,13 +347,26 @@ class RemindersFragment : Fragment() {
     private fun showEditReminderDialog(reminder: Reminder) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_reminder, null)
         val titleInput = dialogView.findViewById<TextInputEditText>(R.id.reminderTitle)
-        val locationInput = dialogView.findViewById<TextInputEditText>(R.id.reminderLocation)
+        val typeSpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.reminderTypeSpinner)
+        val dogSpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.dogSelectionSpinner)
+        val notesInput = dialogView.findViewById<TextInputEditText>(R.id.reminderNotes)
         val dateButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.datePickerButton)
         val timeButton = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.timePickerButton)
 
         // Pre-fill with existing data
         titleInput.setText(reminder.title)
-        locationInput.setText(reminder.location)
+        notesInput.setText(reminder.notes)
+
+        // Setup spinners
+        val reminderTypes = ReminderType.values().map { "${it.emoji} ${it.displayName}" }
+        val typeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, reminderTypes)
+        typeSpinner.setAdapter(typeAdapter)
+        typeSpinner.setText("${reminder.reminderType.emoji} ${reminder.reminderType.displayName}", false)
+
+        val dogNames = dogsList.map { it.first.name }
+        val dogAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, dogNames)
+        dogSpinner.setAdapter(dogAdapter)
+        dogSpinner.setText(reminder.dogName, false)
 
         val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -324,10 +399,20 @@ class RemindersFragment : Fragment() {
             .setView(dialogView)
             .setPositiveButton("Update") { _, _ ->
                 val title = titleInput.text.toString().trim()
-                val location = locationInput.text.toString().trim()
+                val notes = notesInput.text.toString().trim()
+                val selectedTypeText = typeSpinner.text.toString()
+                val selectedDogText = dogSpinner.text.toString()
 
-                if (title.isNotEmpty() && selectedDate.isNotEmpty() && selectedTime.isNotEmpty()) {
-                    updateReminder(reminder, title, location, selectedDate, selectedTime)
+                if (title.isNotEmpty() && selectedDate.isNotEmpty() && selectedTime.isNotEmpty() && selectedDogText.isNotEmpty()) {
+                    val reminderType = ReminderType.values().find {
+                        "${it.emoji} ${it.displayName}" == selectedTypeText
+                    } ?: ReminderType.OTHER
+
+                    val selectedDog = dogsList.find { it.first.name == selectedDogText }
+
+                    if (selectedDog != null) {
+                        updateReminder(reminder, title, reminderType, notes, selectedDate, selectedTime, selectedDog.second, selectedDog.first.name)
+                    }
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -364,7 +449,7 @@ class RemindersFragment : Fragment() {
         }, hour, minute, true).show()
     }
 
-    private fun addReminder(title: String, location: String, date: String, time: String) {
+    private fun addReminder(title: String, reminderType: ReminderType, notes: String, date: String, time: String, dogId: String, dogName: String) {
         val userId = auth.currentUser?.uid ?: return
 
         // Parse date and time to create timestamp
@@ -375,8 +460,11 @@ class RemindersFragment : Fragment() {
         val reminder = Reminder(
             id = UUID.randomUUID().toString(),
             title = title,
-            location = location,
+            reminderType = reminderType,
             dateTime = dateTime,
+            notes = notes,
+            dogId = dogId,
+            dogName = dogName,
             isCompleted = false,
             createdAt = System.currentTimeMillis()
         )
@@ -384,7 +472,7 @@ class RemindersFragment : Fragment() {
         saveReminderToFirebase(userId, reminder)
     }
 
-    private fun updateReminder(reminder: Reminder, newTitle: String, newLocation: String, newDate: String, newTime: String) {
+    private fun updateReminder(reminder: Reminder, newTitle: String, reminderType: ReminderType, newNotes: String, newDate: String, newTime: String, dogId: String, dogName: String) {
         val userId = auth.currentUser?.uid ?: return
 
         // Parse date and time to create timestamp
@@ -394,15 +482,25 @@ class RemindersFragment : Fragment() {
 
         val updatedReminder = reminder.copy(
             title = newTitle,
-            location = newLocation,
-            dateTime = dateTime
+            reminderType = reminderType,
+            notes = newNotes,
+            dateTime = dateTime,
+            dogId = dogId,
+            dogName = dogName
         )
 
         updateReminderInFirebase(userId, updatedReminder)
     }
 
     private fun deleteReminder(reminder: Reminder) {
-        val userId = auth.currentUser?.uid ?: return
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            // Check if fragment is still attached before showing toast
+            if (isAdded) {
+                Toast.makeText(requireContext(), "Please log in to delete reminders", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
         deleteReminderFromFirebase(userId, reminder)
     }
 
@@ -416,12 +514,29 @@ class RemindersFragment : Fragment() {
                 remindersList.add(reminder)
                 remindersList.sortBy { it.dateTime }
                 remindersAdapter.notifyDataSetChanged()
-                updateEmptyState()
-                generateCalendarDays() // Refresh calendar to show new reminder
-                Toast.makeText(requireContext(), "Reminder saved", Toast.LENGTH_SHORT).show()
+                binding.calendarView.notifyCalendarChanged()
+                updateEmptyState(remindersList.isEmpty())
+                // Check if fragment is still attached
+                if (!isAdded) {
+                    return@addOnSuccessListener
+                }
+                
+                loadReminders()
+                // Check if fragment is still attached before showing toast
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Reminder saved successfully", Toast.LENGTH_SHORT).show()
+                }
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to save reminder: ${exception.message}", Toast.LENGTH_LONG).show()
+                // Check if fragment is still attached
+                if (!isAdded) {
+                    return@addOnFailureListener
+                }
+                
+                // Check if fragment is still attached before showing toast
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Failed to save reminder: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
             }
     }
 
@@ -437,6 +552,7 @@ class RemindersFragment : Fragment() {
                     remindersList[index] = reminder
                     remindersList.sortBy { it.dateTime }
                     remindersAdapter.notifyDataSetChanged()
+                    binding.calendarView.notifyCalendarChanged()
                 }
                 Toast.makeText(requireContext(), "Reminder updated", Toast.LENGTH_SHORT).show()
             }
@@ -456,19 +572,38 @@ class RemindersFragment : Fragment() {
                 if (index != -1) {
                     remindersList.removeAt(index)
                     remindersAdapter.notifyItemRemoved(index)
-                    updateEmptyState()
+                    binding.calendarView.notifyCalendarChanged()
+                    updateEmptyState(remindersList.isEmpty())
                 }
-                Toast.makeText(requireContext(), "Reminder deleted", Toast.LENGTH_SHORT).show()
+                // Check if fragment is still attached
+                if (!isAdded) {
+                    return@addOnSuccessListener
+                }
+                
+                loadReminders()
+                // Check if fragment is still attached before showing toast
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Reminder deleted successfully", Toast.LENGTH_SHORT).show()
+                }
             }
             .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to delete reminder: ${exception.message}", Toast.LENGTH_LONG).show()
+                // Check if fragment is still attached
+                if (!isAdded) {
+                    return@addOnFailureListener
+                }
+                
+                // Check if fragment is still attached before showing toast
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Failed to delete reminder: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
             }
     }
 
-    private fun updateEmptyState() {
-        if (remindersList.isEmpty()) {
+    private fun updateEmptyState(isEmpty: Boolean = remindersList.isEmpty()) {
+        if (isEmpty) {
             binding.emptyStateLayout.visibility = View.VISIBLE
             binding.remindersRecyclerView.visibility = View.GONE
+            binding.selectedDateLayout.visibility = View.GONE
         } else {
             binding.emptyStateLayout.visibility = View.GONE
             binding.remindersRecyclerView.visibility = View.VISIBLE

@@ -74,6 +74,7 @@
 
         <!-- Background colors -->
         <color name="bg_light">#F9FAFB</color>
+        <color name="reminder_card_bg">#FFFFFF</color>
 
 
     <!-- Poop Colors -->

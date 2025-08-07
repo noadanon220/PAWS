@@ -38,15 +38,31 @@ class RemindersAdapter(
     class ReminderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val cardView: MaterialCardView = itemView.findViewById(R.id.reminderCard)
         private val titleText: TextView = itemView.findViewById(R.id.reminderTitle)
-        private val locationText: TextView = itemView.findViewById(R.id.reminderLocation)
+        private val dogNameText: TextView = itemView.findViewById(R.id.reminderDogName)
+        private val notesText: TextView = itemView.findViewById(R.id.reminderNotes)
         private val timeText: TextView = itemView.findViewById(R.id.reminderTime)
         private val dateText: TextView = itemView.findViewById(R.id.reminderDate)
         private val typeIcon: ImageView = itemView.findViewById(R.id.reminderTypeIcon)
         private val statusIndicator: View = itemView.findViewById(R.id.statusIndicator)
 
         fun bind(reminder: Reminder) {
-            titleText.text = reminder.title
-            locationText.text = reminder.location
+            titleText.text = "${reminder.reminderType.emoji} ${reminder.title}"
+
+            // Show dog name
+            if (reminder.dogName.isNotEmpty()) {
+                dogNameText.text = "🐕 ${reminder.dogName}"
+                dogNameText.visibility = View.VISIBLE
+            } else {
+                dogNameText.visibility = View.GONE
+            }
+
+            // Show notes
+            if (reminder.notes.isNotEmpty()) {
+                notesText.text = reminder.notes
+                notesText.visibility = View.VISIBLE
+            } else {
+                notesText.visibility = View.GONE
+            }
 
             // Format date and time
             val date = Date(reminder.dateTime)
@@ -65,6 +81,10 @@ class RemindersAdapter(
                 com.danono.paws.model.ReminderType.TRAINING -> R.drawable.ic_training
                 com.danono.paws.model.ReminderType.WALKING -> R.drawable.ic_weight
                 com.danono.paws.model.ReminderType.FEEDING -> R.drawable.ic_food
+                com.danono.paws.model.ReminderType.BATH -> R.drawable.ic_notes
+                com.danono.paws.model.ReminderType.NAIL_CLIPPING -> R.drawable.ic_training
+                com.danono.paws.model.ReminderType.DEWORMING -> R.drawable.ic_notes
+                com.danono.paws.model.ReminderType.CHECKUP -> R.drawable.ic_training
                 else -> R.drawable.calendar_ic
             }
             typeIcon.setImageResource(iconRes)
@@ -94,13 +114,6 @@ class RemindersAdapter(
                 cardView.setCardBackgroundColor(
                     ContextCompat.getColor(itemView.context, R.color.white)
                 )
-            }
-
-            // Hide location if empty
-            if (reminder.location.isEmpty()) {
-                locationText.visibility = View.GONE
-            } else {
-                locationText.visibility = View.VISIBLE
             }
         }
     }
