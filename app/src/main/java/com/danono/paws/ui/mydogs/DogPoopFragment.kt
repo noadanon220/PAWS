@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.danono.paws.R
 import com.danono.paws.adapters.PoopAdapter
@@ -22,12 +23,10 @@ import com.danono.paws.databinding.FragmentDogPoopBinding
 import com.danono.paws.model.DogPoop
 import com.danono.paws.model.PoopColors
 import com.danono.paws.utilities.ImageLoader
+import com.danono.paws.utilities.FirebaseDataManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.launch
 import java.util.*
 
 class DogPoopFragment : Fragment(R.layout.fragment_dog_poop) {
@@ -37,25 +36,22 @@ class DogPoopFragment : Fragment(R.layout.fragment_dog_poop) {
 
     private lateinit var poopAdapter: PoopAdapter
     private lateinit var sharedViewModel: SharedDogsViewModel
-    private val poopList = mutableListOf<DogPoop>()
+    private lateinit var firebaseRepository: FirebaseDataManager
 
-    // Firebase instances
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-    private val storage = FirebaseStorage.getInstance()
+    private val poopList = mutableListOf<DogPoop>()
     private var currentDogId: String = ""
     private var currentDogName: String = ""
 
     // Image handling
     private var selectedImageUri: Uri? = null
     private var cameraImageUri: Uri? = null
+    private var currentImageView: ImageView? = null
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
             selectedImageUri = it
-            // Preview image in dialog
             currentImageView?.let { imageView ->
                 imageView.visibility = View.VISIBLE
                 ImageLoader.getInstance().loadImage(it, imageView)
@@ -85,13 +81,13 @@ class DogPoopFragment : Fragment(R.layout.fragment_dog_poop) {
         }
     }
 
-    private var currentImageView: ImageView? = null
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDogPoopBinding.bind(view)
 
+        // Initialize
         sharedViewModel = ViewModelProvider(requireActivity())[SharedDogsViewModel::class.java]
+        firebaseRepository = FirebaseDataManager.getInstance()
 
         setupRecyclerView()
         setupFab()
@@ -111,6 +107,10 @@ class DogPoopFragment : Fragment(R.layout.fragment_dog_poop) {
 
     private fun setupFab() {
         binding.fabAddPoop.setOnClickListener {
+            if (currentDogId.isEmpty()) {
+                Toast.makeText(requireContext(), "Please select a dog first", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             showAddPoopDialog()
         }
     }
@@ -126,13 +126,82 @@ class DogPoopFragment : Fragment(R.layout.fragment_dog_poop) {
         sharedViewModel.selectedDogId.observe(viewLifecycleOwner) { dogId ->
             dogId?.let {
                 currentDogId = it
-                loadPoopFromFirebase(it)
+                loadPoopLogs(it)
+            }
+        }
+    }
+
+    private fun loadPoopLogs(dogId: String) {
+        lifecycleScope.launch {
+            try {
+                val result = firebaseRepository.getPoopEntries(dogId)
+                result.onSuccess { poopEntries ->
+                    poopList.clear()
+                    poopList.addAll(poopEntries)
+                    poopAdapter.notifyDataSetChanged()
+                    updateEmptyState()
+                }.onFailure { exception ->
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to load poop logs: ${exception.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    updateEmptyState()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to load poop logs: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                updateEmptyState()
             }
         }
     }
 
     private fun showAddPoopDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_poop, null)
+        setupPoopDialog(dialogView, null) { color, consistency, notes ->
+            addPoopLog(color, consistency, notes)
+        }
+    }
+
+    private fun showEditPoopDialog(poop: DogPoop) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_poop, null)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Edit Poop Entry")
+            .setView(dialogView)
+            .setPositiveButton("Update") { _, _ ->
+                val colorSpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.poopColorSpinner)
+                val consistencySpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.poopConsistencySpinner)
+                val notesInput = dialogView.findViewById<TextInputEditText>(R.id.poopNotes)
+
+                val color = colorSpinner.text.toString().trim()
+                val consistency = consistencySpinner.text.toString().trim()
+                val notes = notesInput.text.toString().trim()
+
+                if (color.isNotEmpty() && consistency.isNotEmpty()) {
+                    updatePoopLog(poop, color, consistency, notes)
+                } else {
+                    Toast.makeText(requireContext(), "Please select color and consistency", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .setNeutralButton("Delete") { _, _ ->
+                deletePoopLog(poop)
+            }
+            .show()
+
+        // Setup the dialog after showing it
+        setupPoopDialog(dialogView, poop) { _, _, _ -> /* handled by positive button */ }
+    }
+
+    private fun setupPoopDialog(
+        dialogView: View,
+        existingPoop: DogPoop?,
+        onSave: (String, String, String) -> Unit
+    ) {
         val colorSpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.poopColorSpinner)
         val consistencySpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.poopConsistencySpinner)
         val notesInput = dialogView.findViewById<TextInputEditText>(R.id.poopNotes)
@@ -146,89 +215,158 @@ class DogPoopFragment : Fragment(R.layout.fragment_dog_poop) {
         val colors = PoopColors.getColors().map { it.name }
         val colorAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, colors)
         colorSpinner.setAdapter(colorAdapter)
-        colorSpinner.setText(colors[0], false) // Set default
+        colorSpinner.setText(existingPoop?.color ?: colors[0], false)
 
         // Setup consistency spinner
         val consistencies = listOf("Normal", "Soft", "Hard", "Liquid", "Mucus")
         val consistencyAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, consistencies)
         consistencySpinner.setAdapter(consistencyAdapter)
-        consistencySpinner.setText(consistencies[0], false) // Set default
+        consistencySpinner.setText(existingPoop?.consistency ?: consistencies[0], false)
 
-        addImageButton.setOnClickListener {
-            showImagePickerOptions()
-        }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Add Poop Entry")
-            .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
-                val color = colorSpinner.text.toString().trim()
-                val consistency = consistencySpinner.text.toString().trim()
-                val notes = notesInput.text.toString().trim()
-
-                if (color.isNotEmpty() && consistency.isNotEmpty()) {
-                    addPoop(color, consistency, notes)
-                } else {
-                    Toast.makeText(requireContext(), "Please select color and consistency", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showEditPoopDialog(poop: DogPoop) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_poop, null)
-        val colorSpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.poopColorSpinner)
-        val consistencySpinner = dialogView.findViewById<AutoCompleteTextView>(R.id.poopConsistencySpinner)
-        val notesInput = dialogView.findViewById<TextInputEditText>(R.id.poopNotes)
-        val imageView = dialogView.findViewById<ImageView>(R.id.poopImagePreview)
-        val addImageButton = dialogView.findViewById<View>(R.id.addImageButton)
-
-        currentImageView = imageView
-        selectedImageUri = null
-
-        // Setup spinners
-        val colors = PoopColors.getColors().map { it.name }
-        val colorAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, colors)
-        colorSpinner.setAdapter(colorAdapter)
-        colorSpinner.setText(poop.color, false)
-
-        val consistencies = listOf("Normal", "Soft", "Hard", "Liquid", "Mucus")
-        val consistencyAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, consistencies)
-        consistencySpinner.setAdapter(consistencyAdapter)
-        consistencySpinner.setText(poop.consistency, false)
-
-        notesInput.setText(poop.notes)
+        // Setup notes
+        notesInput.setText(existingPoop?.notes ?: "")
 
         // Load existing image
-        if (poop.imageUrl.isNotEmpty()) {
+        if (!existingPoop?.imageUrl.isNullOrEmpty()) {
             imageView.visibility = View.VISIBLE
-            ImageLoader.getInstance().loadImage(poop.imageUrl, imageView)
+            ImageLoader.getInstance().loadImage(existingPoop!!.imageUrl, imageView)
         }
 
         addImageButton.setOnClickListener {
             showImagePickerOptions()
         }
 
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Edit Poop Entry")
-            .setView(dialogView)
-            .setPositiveButton("Update") { _, _ ->
-                val color = colorSpinner.text.toString().trim()
-                val consistency = consistencySpinner.text.toString().trim()
-                val notes = notesInput.text.toString().trim()
+        // For add dialog, show it here
+        if (existingPoop == null) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Add Poop Entry")
+                .setView(dialogView)
+                .setPositiveButton("Save") { _, _ ->
+                    val color = colorSpinner.text.toString().trim()
+                    val consistency = consistencySpinner.text.toString().trim()
+                    val notes = notesInput.text.toString().trim()
 
-                if (color.isNotEmpty() && consistency.isNotEmpty()) {
-                    updatePoop(poop, color, consistency, notes)
+                    if (color.isNotEmpty() && consistency.isNotEmpty()) {
+                        onSave(color, consistency, notes)
+                    } else {
+                        Toast.makeText(requireContext(), "Please select color and consistency", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
+    private fun addPoopLog(color: String, consistency: String, notes: String) {
+        val poop = DogPoop(
+            id = UUID.randomUUID().toString(),
+            color = color,
+            consistency = consistency,
+            notes = notes,
+            imageUrl = "", // Will be updated if image is uploaded
+            createdDate = System.currentTimeMillis(),
+            lastModified = System.currentTimeMillis()
+        )
+
+        lifecycleScope.launch {
+            try {
+                // Upload image if selected
+                val imageUrl = if (selectedImageUri != null) {
+                    val result = firebaseRepository.uploadImage(currentDogId, selectedImageUri!!, "poop_images")
+                    result.getOrElse { "" }
+                } else {
+                    ""
+                }
+
+                val poopWithImage = poop.copy(imageUrl = imageUrl)
+                val result = firebaseRepository.addPoop(currentDogId, poopWithImage)
+
+                result.onSuccess {
+                    poopList.add(0, poopWithImage)
+                    poopAdapter.notifyItemInserted(0)
+                    binding.poopRecyclerView.scrollToPosition(0)
+                    updateEmptyState()
+                    Toast.makeText(requireContext(), "Poop entry saved successfully", Toast.LENGTH_SHORT).show()
+                }.onFailure { exception ->
+                    Toast.makeText(requireContext(), "Failed to save poop entry: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updatePoopLog(poop: DogPoop, newColor: String, newConsistency: String, newNotes: String) {
+        lifecycleScope.launch {
+            try {
+                // Upload new image if selected
+                val imageUrl = if (selectedImageUri != null) {
+                    val result = firebaseRepository.uploadImage(currentDogId, selectedImageUri!!, "poop_images")
+                    result.getOrElse { poop.imageUrl }
+                } else {
+                    poop.imageUrl
+                }
+
+                val updatedPoop = poop.copy(
+                    color = newColor,
+                    consistency = newConsistency,
+                    notes = newNotes,
+                    imageUrl = imageUrl,
+                    lastModified = System.currentTimeMillis()
+                )
+
+                val result = firebaseRepository.updatePoop(currentDogId, updatedPoop)
+
+                result.onSuccess {
+                    val index = poopList.indexOfFirst { it.id == poop.id }
+                    if (index != -1) {
+                        poopList[index] = updatedPoop
+                        poopAdapter.notifyItemChanged(index)
+                    }
+                    Toast.makeText(requireContext(), "Poop entry updated successfully", Toast.LENGTH_SHORT).show()
+                }.onFailure { exception ->
+                    Toast.makeText(requireContext(), "Failed to update poop entry: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun deletePoopLog(poop: DogPoop) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete Poop Entry")
+            .setMessage("Are you sure you want to delete this entry?")
+            .setPositiveButton("Delete") { _, _ ->
+                lifecycleScope.launch {
+                    try {
+                        // Delete image if it exists
+                        if (poop.imageUrl.isNotEmpty()) {
+                            firebaseRepository.deleteImage(poop.imageUrl)
+                        }
+
+                        val result = firebaseRepository.deletePoop(currentDogId, poop.id)
+                        result.onSuccess {
+                            val index = poopList.indexOf(poop)
+                            if (index != -1) {
+                                poopList.removeAt(index)
+                                poopAdapter.notifyItemRemoved(index)
+                                updateEmptyState()
+                            }
+                            Toast.makeText(requireContext(), "Poop entry deleted successfully", Toast.LENGTH_SHORT).show()
+                        }.onFailure { exception ->
+                            Toast.makeText(requireContext(), "Failed to delete poop entry: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             .setNegativeButton("Cancel", null)
-            .setNeutralButton("Delete") { _, _ ->
-                deletePoop(poop)
-            }
             .show()
     }
 
+    // Image picker methods
     private fun showImagePickerOptions() {
         val options = arrayOf("Choose from phone", "Take a photo")
 
@@ -270,153 +408,6 @@ class DogPoopFragment : Fragment(R.layout.fragment_dog_poop) {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
         )!!
-    }
-
-    private fun addPoop(color: String, consistency: String, notes: String) {
-        val userId = auth.currentUser?.uid ?: return
-
-        val poop = DogPoop(
-            id = UUID.randomUUID().toString(),
-            color = color,
-            consistency = consistency,
-            notes = notes,
-            imageUrl = "", // Will be updated if image is uploaded
-            createdDate = System.currentTimeMillis(),
-            lastModified = System.currentTimeMillis()
-        )
-
-        if (selectedImageUri != null) {
-            uploadImageAndSavePoop(userId, poop, selectedImageUri!!)
-        } else {
-            savePoopToFirebase(userId, poop)
-        }
-    }
-
-    private fun updatePoop(poop: DogPoop, newColor: String, newConsistency: String, newNotes: String) {
-        val userId = auth.currentUser?.uid ?: return
-
-        val updatedPoop = poop.copy(
-            color = newColor,
-            consistency = newConsistency,
-            notes = newNotes,
-            lastModified = System.currentTimeMillis()
-        )
-
-        if (selectedImageUri != null) {
-            uploadImageAndSavePoop(userId, updatedPoop, selectedImageUri!!)
-        } else {
-            updatePoopInFirebase(userId, updatedPoop)
-        }
-    }
-
-    private fun deletePoop(poop: DogPoop) {
-        val userId = auth.currentUser?.uid ?: return
-        deletePoopFromFirebase(userId, poop)
-    }
-
-    private fun uploadImageAndSavePoop(userId: String, poop: DogPoop, imageUri: Uri) {
-        val imageRef = storage.reference.child("poop_images/${userId}/${poop.id}.jpg")
-
-        imageRef.putFile(imageUri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    val poopWithImage = poop.copy(imageUrl = downloadUri.toString())
-                    savePoopToFirebase(userId, poopWithImage)
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
-                savePoopToFirebase(userId, poop)
-            }
-    }
-
-    private fun loadPoopFromFirebase(dogId: String) {
-        val userId = auth.currentUser?.uid ?: return
-
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .document(dogId)
-            .collection("poop")
-            .orderBy("lastModified", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                poopList.clear()
-                for (document in documents) {
-                    val poop = document.toObject(DogPoop::class.java)
-                    poopList.add(poop)
-                }
-                poopAdapter.notifyDataSetChanged()
-                updateEmptyState()
-            }
-            .addOnFailureListener {
-                poopList.clear()
-                poopAdapter.notifyDataSetChanged()
-                updateEmptyState()
-            }
-    }
-
-    private fun savePoopToFirebase(userId: String, poop: DogPoop) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .document(currentDogId)
-            .collection("poop")
-            .document(poop.id)
-            .set(poop)
-            .addOnSuccessListener {
-                poopList.add(0, poop)
-                poopAdapter.notifyItemInserted(0)
-                binding.poopRecyclerView.scrollToPosition(0)
-                updateEmptyState()
-                Toast.makeText(requireContext(), "Poop entry saved", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to save: ${exception.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun updatePoopInFirebase(userId: String, poop: DogPoop) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .document(currentDogId)
-            .collection("poop")
-            .document(poop.id)
-            .set(poop)
-            .addOnSuccessListener {
-                val index = poopList.indexOfFirst { it.id == poop.id }
-                if (index != -1) {
-                    poopList[index] = poop
-                    poopAdapter.notifyItemChanged(index)
-                }
-                Toast.makeText(requireContext(), "Poop entry updated", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun deletePoopFromFirebase(userId: String, poop: DogPoop) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .document(currentDogId)
-            .collection("poop")
-            .document(poop.id)
-            .delete()
-            .addOnSuccessListener {
-                val index = poopList.indexOf(poop)
-                if (index != -1) {
-                    poopList.removeAt(index)
-                    poopAdapter.notifyItemRemoved(index)
-                    updateEmptyState()
-                }
-                Toast.makeText(requireContext(), "Poop entry deleted", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to delete: ${exception.message}", Toast.LENGTH_LONG).show()
-            }
     }
 
     private fun updateEmptyState() {
