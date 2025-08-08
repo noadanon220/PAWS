@@ -63,5 +63,11 @@ class MainActivity : AppCompatActivity() {
 
         // Connect BottomNavigationView with NavController
         navView.setupWithNavController(navController)
+
+        // If the activity was launched after registration, navigate to the setup profile screen.
+        // The intent extra is set by RegisterActivity to trigger this behaviour.
+        if (intent.getBooleanExtra("navigateToSetupProfile", false)) {
+            navController.navigate(R.id.setupProfileFragment)
+        }
     }
 }
