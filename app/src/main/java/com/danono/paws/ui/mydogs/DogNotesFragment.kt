@@ -5,16 +5,17 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.danono.paws.R
 import com.danono.paws.adapters.NotesAdapter
 import com.danono.paws.databinding.FragmentDogNotesBinding
 import com.danono.paws.model.DogNote
+import com.danono.paws.utilities.FirebaseDataManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.launch
 import java.util.*
 
 class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
@@ -24,18 +25,19 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
 
     private lateinit var notesAdapter: NotesAdapter
     private lateinit var sharedViewModel: SharedDogsViewModel
+    private lateinit var firebaseDataManager: FirebaseDataManager
     private val notesList = mutableListOf<DogNote>()
 
-    // Firebase instances for database operations
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-    private var currentDogId: String = "" // Use dog ID instead of name
-    private var currentDogName: String = "" // Keep name for display purposes
+    private var currentDogId: String = ""
+    private var currentDogName: String = ""
+    private var notesListener: ListenerRegistration? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDogNotesBinding.bind(view)
 
+        // Initialize Firebase Data Manager and ViewModel
+        firebaseDataManager = FirebaseDataManager.getInstance()
         sharedViewModel = ViewModelProvider(requireActivity())[SharedDogsViewModel::class.java]
 
         setupRecyclerView()
@@ -72,8 +74,52 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
         sharedViewModel.selectedDogId.observe(viewLifecycleOwner) { dogId ->
             dogId?.let {
                 currentDogId = it
-                loadNotesFromFirebase(it)
+                setupNotesListener(it)
             }
+        }
+    }
+
+    /**
+     * Setup real-time listener for notes using FirebaseDataManager
+     */
+    private fun setupNotesListener(dogId: String) {
+        // Remove previous listener if exists
+        notesListener?.remove()
+
+        // Setup new listener
+        notesListener = firebaseDataManager.addNotesListener(dogId) { notes ->
+            notesList.clear()
+            notesList.addAll(notes)
+            notesAdapter.notifyDataSetChanged()
+            updateEmptyState()
+        }
+
+        if (notesListener == null) {
+            // Fallback to loading notes once if listener setup fails
+            loadNotesFromFirebase(dogId)
+        }
+    }
+
+    /**
+     * Fallback method to load notes if listener fails
+     */
+    private fun loadNotesFromFirebase(dogId: String) {
+        lifecycleScope.launch {
+            val result = firebaseDataManager.getNotes(dogId)
+            result.fold(
+                onSuccess = { notes ->
+                    notesList.clear()
+                    notesList.addAll(notes)
+                    notesAdapter.notifyDataSetChanged()
+                    updateEmptyState()
+                },
+                onFailure = {
+                    // Handle empty collections gracefully - show empty state
+                    notesList.clear()
+                    notesAdapter.notifyDataSetChanged()
+                    updateEmptyState()
+                }
+            )
         }
     }
 
@@ -126,8 +172,6 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
     }
 
     private fun addNote(title: String, content: String) {
-        val userId = auth.currentUser?.uid ?: return
-
         val note = DogNote(
             id = UUID.randomUUID().toString(),
             title = title,
@@ -136,124 +180,54 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
             lastModified = System.currentTimeMillis()
         )
 
-        // Save new note to Firebase using dog ID
-        saveNoteToFirebase(userId, note)
+        lifecycleScope.launch {
+            val result = firebaseDataManager.addNote(currentDogId, note)
+            result.fold(
+                onSuccess = {
+                    Toast.makeText(requireContext(), "Note saved", Toast.LENGTH_SHORT).show()
+                    // The listener will automatically update the UI
+                },
+                onFailure = { exception ->
+                    Toast.makeText(requireContext(), "Failed to save note: ${exception.message}", Toast.LENGTH_LONG).show()
+                }
+            )
+        }
     }
 
     private fun updateNote(note: DogNote, newTitle: String, newContent: String) {
-        val userId = auth.currentUser?.uid ?: return
-
         val updatedNote = note.copy(
             title = newTitle,
             content = newContent,
             lastModified = System.currentTimeMillis()
         )
 
-        // Update existing note in Firebase
-        updateNoteInFirebase(userId, updatedNote)
+        lifecycleScope.launch {
+            val result = firebaseDataManager.updateNote(currentDogId, updatedNote)
+            result.fold(
+                onSuccess = {
+                    Toast.makeText(requireContext(), "Note updated", Toast.LENGTH_SHORT).show()
+                    // The listener will automatically update the UI
+                },
+                onFailure = { exception ->
+                    Toast.makeText(requireContext(), "Failed to update note: ${exception.message}", Toast.LENGTH_LONG).show()
+                }
+            )
+        }
     }
 
     private fun deleteNote(note: DogNote) {
-        val userId = auth.currentUser?.uid ?: return
-
-        // Remove note from Firebase
-        deleteNoteFromFirebase(userId, note)
-    }
-
-    private fun loadNotesFromFirebase(dogId: String) {
-        val userId = auth.currentUser?.uid ?: return
-
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .document(dogId) // Use dog ID instead of name
-            .collection("notes")
-            .orderBy("lastModified", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                notesList.clear()
-                for (document in documents) {
-                    val note = document.toObject(DogNote::class.java)
-                    notesList.add(note)
+        lifecycleScope.launch {
+            val result = firebaseDataManager.deleteNote(currentDogId, note.id)
+            result.fold(
+                onSuccess = {
+                    Toast.makeText(requireContext(), "Note deleted", Toast.LENGTH_SHORT).show()
+                    // The listener will automatically update the UI
+                },
+                onFailure = { exception ->
+                    Toast.makeText(requireContext(), "Failed to delete note: ${exception.message}", Toast.LENGTH_LONG).show()
                 }
-                notesAdapter.notifyDataSetChanged()
-                updateEmptyState()
-            }
-            .addOnFailureListener { exception ->
-                // Silently handle empty collections - show empty state
-                notesList.clear()
-                notesAdapter.notifyDataSetChanged()
-                updateEmptyState()
-            }
-    }
-
-    private fun saveNoteToFirebase(userId: String, note: DogNote) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .document(currentDogId) // Use dog ID instead of name
-            .collection("notes")
-            .document(note.id)
-            .set(note)
-            .addOnSuccessListener {
-                // Add to local list for immediate UI update
-                notesList.add(0, note)
-                notesAdapter.notifyItemInserted(0)
-                binding.notesRecyclerView.scrollToPosition(0)
-                updateEmptyState()
-
-                Toast.makeText(requireContext(), "Note saved", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to save note: ${exception.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun updateNoteInFirebase(userId: String, note: DogNote) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .document(currentDogId) // Use dog ID instead of name
-            .collection("notes")
-            .document(note.id)
-            .set(note)
-            .addOnSuccessListener {
-                // Update local list to reflect changes immediately
-                val index = notesList.indexOfFirst { it.id == note.id }
-                if (index != -1) {
-                    notesList[index] = note
-                    notesAdapter.notifyItemChanged(index)
-                }
-
-                Toast.makeText(requireContext(), "Note updated", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to update note: ${exception.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun deleteNoteFromFirebase(userId: String, note: DogNote) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .document(currentDogId) // Use dog ID instead of name
-            .collection("notes")
-            .document(note.id)
-            .delete()
-            .addOnSuccessListener {
-                // Remove from local list to update UI
-                val index = notesList.indexOf(note)
-                if (index != -1) {
-                    notesList.removeAt(index)
-                    notesAdapter.notifyItemRemoved(index)
-                    updateEmptyState()
-                }
-
-                Toast.makeText(requireContext(), "Note deleted", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireContext(), "Failed to delete note: ${exception.message}", Toast.LENGTH_LONG).show()
-            }
+            )
+        }
     }
 
     private fun updateEmptyState() {
@@ -268,6 +242,8 @@ class DogNotesFragment : Fragment(R.layout.fragment_dog_notes) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        // Remove the listener when view is destroyed
+        notesListener?.remove()
         _binding = null
     }
 }

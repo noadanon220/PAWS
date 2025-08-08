@@ -15,25 +15,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.danono.paws.R
 import com.danono.paws.adapters.DogColorAdapter
 import com.danono.paws.data.remote.DogApiClient
 import com.danono.paws.databinding.FragmentAddDogBinding
 import com.danono.paws.model.DogTag
+import com.danono.paws.utilities.FirebaseDataManager
+import com.danono.paws.utilities.ImageLoader
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import android.Manifest
 import android.util.Log
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
-import com.danono.paws.model.Dog
-import com.danono.paws.utilities.ImageLoader
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 
 /**
  * Fragment for adding a new dog to the user's collection.
@@ -55,6 +52,7 @@ class AddDogFragment : Fragment() {
     private var cameraImageUri: Uri? = null
 
     private lateinit var sharedViewModel: SharedDogsViewModel
+    private lateinit var firebaseDataManager: FirebaseDataManager
 
     // === GALLERY PICK ===
     private val pickImageLauncher = registerForActivityResult(
@@ -127,6 +125,10 @@ class AddDogFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize Firebase Data Manager and ViewModel
+        firebaseDataManager = FirebaseDataManager.getInstance()
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedDogsViewModel::class.java]
+
         // Initialize all UI components
         setupColorList()
         setupTagChips()
@@ -137,9 +139,7 @@ class AddDogFragment : Fragment() {
             showImagePickerOptions()
         }
 
-        sharedViewModel = ViewModelProvider(requireActivity())[SharedDogsViewModel::class.java]
-
-        // Replace existing "Woof" button click listener
+        // Replace existing "Woof" button click listener with new Firebase Data Manager
         binding.addDogBTNWoof.setOnClickListener {
             val name = binding.addDogName.text.toString().trim()
             val breed = binding.addDogACTVBreed.text.toString().trim()
@@ -159,30 +159,13 @@ class AddDogFragment : Fragment() {
             val tags = getSelectedTags()
             val colors = getSelectedColors().map { requireContext().resources.getResourceEntryName(it) }
 
-            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
-
-            // If image was selected, upload it to Firebase Storage first
-            if (selectedImageUri != null) {
-                uploadImageAndSaveDog(
-                    userId = userId,
-                    name = name,
-                    breed = breed,
-                    birthDate = birthDate,
-                    tags = tags,
-                    colors = colors,
-                    imageUri = selectedImageUri!!
-                )
-            } else {
-                // Save without image
-                saveDogToFirestore(
-                    userId = userId,
-                    name = name,
-                    breed = breed,
-                    birthDate = birthDate,
-                    tags = tags,
-                    colors = colors,
-                    imageUrl = ""
-                )
+            // Use Firebase Data Manager
+            lifecycleScope.launch {
+                if (selectedImageUri != null) {
+                    uploadDogImageAndSave(name, breed, birthDate, tags, colors, selectedImageUri!!)
+                } else {
+                    saveDogWithoutImage(name, breed, birthDate, tags, colors)
+                }
             }
         }
     }
@@ -193,11 +176,10 @@ class AddDogFragment : Fragment() {
     }
 
     // ================================
-    // FIREBASE STORAGE METHODS
+    // FIREBASE DATA MANAGER METHODS
     // ================================
 
-    private fun uploadImageAndSaveDog(
-        userId: String,
+    private suspend fun uploadDogImageAndSave(
         name: String,
         breed: String,
         birthDate: Long,
@@ -205,75 +187,118 @@ class AddDogFragment : Fragment() {
         colors: List<String>,
         imageUri: Uri
     ) {
-        val storageRef = FirebaseStorage.getInstance().reference
-        val imageRef = storageRef.child("dog_images/${userId}/${UUID.randomUUID()}.jpg")
+        val result = firebaseDataManager.addDog(
+            com.danono.paws.model.Dog(
+                name = name,
+                birthDate = birthDate,
+                gender = true,
+                weight = 0.0,
+                color = colors,
+                imageUrl = "", // Will be updated after image upload
+                tags = tags,
+                breedName = breed
+            )
+        )
 
-        imageRef.putFile(imageUri)
-            .addOnSuccessListener { taskSnapshot ->
-                // Get the permanent download URL
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    saveDogToFirestore(
-                        userId = userId,
-                        name = name,
-                        breed = breed,
-                        birthDate = birthDate,
-                        tags = tags,
-                        colors = colors,
-                        imageUrl = downloadUri.toString()
-                    )
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
-                // Save without image as fallback
-                saveDogToFirestore(
-                    userId = userId,
-                    name = name,
-                    breed = breed,
-                    birthDate = birthDate,
-                    tags = tags,
-                    colors = colors,
-                    imageUrl = ""
+        result.fold(
+            onSuccess = { dogId ->
+                // Upload image with dogId
+                val imageUploadResult = firebaseDataManager.uploadImage(dogId, imageUri, "dog_images")
+                imageUploadResult.fold(
+                    onSuccess = { imageUrl ->
+                        // Update dog with image URL
+                        val updatedDog = com.danono.paws.model.Dog(
+                            name = name,
+                            birthDate = birthDate,
+                            gender = true,
+                            weight = 0.0,
+                            color = colors,
+                            imageUrl = imageUrl,
+                            tags = tags,
+                            breedName = breed
+                        )
+                        lifecycleScope.launch {
+                            val updateResult = firebaseDataManager.updateDog(dogId, updatedDog)
+                            updateResult.fold(
+                                onSuccess = {
+                                    Toast.makeText(requireContext(), "Dog added successfully 🐶", Toast.LENGTH_SHORT).show()
+                                    sharedViewModel.addDog(updatedDog, dogId)
+                                    findNavController().navigate(R.id.action_addDogFragment_to_navigation_home)
+                                },
+                                onFailure = {
+                                    Toast.makeText(requireContext(), "Failed to update dog image", Toast.LENGTH_SHORT).show()
+                                    // Still add to UI without image
+                                    val dogWithoutImage = com.danono.paws.model.Dog(
+                                        name = name,
+                                        birthDate = birthDate,
+                                        gender = true,
+                                        weight = 0.0,
+                                        color = colors,
+                                        imageUrl = "",
+                                        tags = tags,
+                                        breedName = breed
+                                    )
+                                    sharedViewModel.addDog(dogWithoutImage, dogId)
+                                    findNavController().navigate(R.id.action_addDogFragment_to_navigation_home)
+                                }
+                            )
+                        }
+                    },
+                    onFailure = {
+                        Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                        // Still add to UI without image
+                        val dogWithoutImage = com.danono.paws.model.Dog(
+                            name = name,
+                            birthDate = birthDate,
+                            gender = true,
+                            weight = 0.0,
+                            color = colors,
+                            imageUrl = "",
+                            tags = tags,
+                            breedName = breed
+                        )
+                        sharedViewModel.addDog(dogWithoutImage, dogId)
+                        findNavController().navigate(R.id.action_addDogFragment_to_navigation_home)
+                    }
                 )
+            },
+            onFailure = {
+                Toast.makeText(requireContext(), "Failed to add dog", Toast.LENGTH_SHORT).show()
             }
+        )
     }
 
-    private fun saveDogToFirestore(
-    userId: String,
-    name: String,
-    breed: String,
-    birthDate: Long,
-    tags: List<String>,
-    colors: List<String>,
-    imageUrl: String
+    private suspend fun saveDogWithoutImage(
+        name: String,
+        breed: String,
+        birthDate: Long,
+        tags: List<String>,
+        colors: List<String>
     ) {
-        val dog = Dog(
+        val dog = com.danono.paws.model.Dog(
             name = name,
             birthDate = birthDate,
             gender = true,
             weight = 0.0,
             color = colors,
-            imageUrl = imageUrl, // Now this is a permanent Firebase Storage URL
+            imageUrl = "",
             tags = tags,
             breedName = breed
         )
 
-        // Use add() to generate automatic ID, then save the ID with the dog
-        FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(userId)
-            .collection("dogs")
-            .add(dog) // This generates automatic unique ID
-            .addOnSuccessListener { documentReference ->
-                val dogId = documentReference.id
+        val result = firebaseDataManager.addDog(dog)
+        result.fold(
+            onSuccess = { dogId ->
                 Toast.makeText(requireContext(), "Dog added successfully 🐶", Toast.LENGTH_SHORT).show()
-                sharedViewModel.addDog(dog, dogId) // Pass both dog and generated ID
+                sharedViewModel.addDog(dog, dogId)
                 findNavController().navigate(R.id.action_addDogFragment_to_navigation_home)
-            }
-            .addOnFailureListener {
+            },
+            onFailure = {
                 Toast.makeText(requireContext(), "Failed to add dog", Toast.LENGTH_SHORT).show()
             }
+        )
     }
+
     // ================================
     // UI SETUP METHODS
     // ================================
