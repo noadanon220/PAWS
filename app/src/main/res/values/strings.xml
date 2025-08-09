@@ -72,6 +72,16 @@
     <string name="home_view_all">View all</string>
     <string name="home_map_preview">Map preview</string>
     <string name="home_upcoming_reminders">Upcoming Reminders</string>
+
+
+    <!-- Reminders screen -->
+    <string name="reminders_title">Reminders</string>
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="todays_reminders">Today\'s Reminders</string>
+    <string name="no_reminders_yet">No reminders yet</string>
+    <string name="tap_plus_to_add_first_reminder">Tap the + button to add your first reminder</string>
     <string name="desc_add_reminder">Add reminder</string>
+
 
 </resources>

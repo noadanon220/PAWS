@@ -20,14 +20,15 @@ import com.danono.paws.model.Dog
 import com.danono.paws.model.Reminder
 import com.danono.paws.model.ReminderType
 import com.danono.paws.ui.mydogs.SharedDogsViewModel
+import com.danono.paws.utilities.FirebaseDataManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.ListenerRegistration
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.ViewContainer
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -39,6 +40,13 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
+/**
+ * Reminders screen with:
+ * - Header (month navigation)
+ * - Calendar (kizitonwose)
+ * - Filtered list for the selected day (only)
+ * - Add/Edit/Delete dialogs saving into users/{uid}/reminders
+ */
 class RemindersFragment : Fragment() {
 
     private var _binding: FragmentRemindersBinding? = null
@@ -47,16 +55,18 @@ class RemindersFragment : Fragment() {
     private lateinit var remindersAdapter: RemindersAdapter
     private lateinit var remindersViewModel: RemindersViewModel
     private lateinit var sharedDogsViewModel: SharedDogsViewModel
-    private val remindersList = mutableListOf<Reminder>()
-    private val dogsList = mutableListOf<Pair<Dog, String>>() // (Dog, docId)
 
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+    private val remindersList = mutableListOf<Reminder>()       // full list from listener
+    private val dogsList = mutableListOf<Pair<Dog, String>>()   // (Dog, docId) for dog selector
+
+    private var remindersListener: ListenerRegistration? = null
 
     // Calendar state
     private var selectedDate = ""
     private var selectedTime = ""
     private var selectedCalendarDate: LocalDate? = null
+
+    private val scope = MainScope()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,6 +79,8 @@ class RemindersFragment : Fragment() {
         return binding.root
     }
 
+    // -------------------- Lifecycle --------------------
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -76,18 +88,25 @@ class RemindersFragment : Fragment() {
         setupRecyclerView()
         setupFab()
         loadDogs()
-        loadReminders()
+        attachRemindersListener()
         setupMonthNavigation()
     }
 
     override fun onResume() {
         super.onResume()
-        // Make sure we always show only the selected day's reminders
+        // Ensure a date is always selected; default to today
         if (selectedCalendarDate == null) selectedCalendarDate = LocalDate.now()
         applyFilterAndRender()
     }
 
-    // ---------------- Calendar ----------------
+    override fun onDestroyView() {
+        super.onDestroyView()
+        remindersListener?.remove()
+        remindersListener = null
+        _binding = null
+    }
+
+    // -------------------- Calendar --------------------
 
     private fun setupCalendar() {
         val currentMonth = YearMonth.now()
@@ -110,12 +129,11 @@ class RemindersFragment : Fragment() {
             updateMonthYearText(calendarMonth.yearMonth)
         }
 
-        // Select "today" by default once the calendar is laid out
+        // Select "today" by default after layout
         binding.calendarView.post {
             if (selectedCalendarDate == null) {
                 selectDate(LocalDate.now())
             } else {
-                // Restore previously selected date (e.g., when coming back to this screen)
                 selectDate(selectedCalendarDate!!)
             }
         }
@@ -155,8 +173,8 @@ class RemindersFragment : Fragment() {
                 DayPosition.MonthDate -> {
                     dayText.visibility = View.VISIBLE
 
-                    val hasReminders = remindersList.any { reminder ->
-                        millisToLocalDate(reminder.dateTime) == day.date
+                    val hasReminders = remindersList.any { r ->
+                        millisToLocalDate(r.dateTime) == day.date
                     }
                     if (hasReminders) indicator.visibility = View.VISIBLE
 
@@ -168,15 +186,13 @@ class RemindersFragment : Fragment() {
                     if (day.date == LocalDate.now() && day.date != selectedCalendarDate) {
                         dayText.setTextColor(resources.getColor(R.color.Primary_pink, null))
                     }
+
+                    view.setOnClickListener {
+                        selectDate(day.date)
+                    }
                 }
                 DayPosition.InDate, DayPosition.OutDate -> {
                     dayText.visibility = View.INVISIBLE
-                }
-            }
-
-            view.setOnClickListener {
-                if (day.position == DayPosition.MonthDate) {
-                    selectDate(day.date)
                 }
             }
         }
@@ -193,16 +209,24 @@ class RemindersFragment : Fragment() {
         applyFilterAndRender()
     }
 
-    // --------------- Filtering helper ---------------
+    // -------------------- RecyclerView --------------------
+
+    private fun setupRecyclerView() {
+        remindersAdapter = RemindersAdapter(emptyList()) { reminder ->
+            showEditReminderDialog(reminder)
+        }
+        binding.remindersRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = remindersAdapter
+        }
+    }
 
     private fun applyFilterAndRender() {
         val targetDate = selectedCalendarDate ?: LocalDate.now()
         val dateReminders = remindersList.filter { millisToLocalDate(it.dateTime) == targetDate }
 
-        // Update header count
         binding.reminderCountText.text = "${dateReminders.size} reminders"
 
-        // Update adapter
         if (::remindersAdapter.isInitialized) {
             remindersAdapter.submit(dateReminders)
         } else {
@@ -215,72 +239,48 @@ class RemindersFragment : Fragment() {
         updateEmptyState(dateReminders.isEmpty())
     }
 
-    // --------------- RecyclerView ---------------
-
-    private fun setupRecyclerView() {
-        // Start with empty list; we'll feed filtered data via applyFilterAndRender()
-        remindersAdapter = RemindersAdapter(emptyList()) { reminder ->
-            showEditReminderDialog(reminder)
-        }
-        binding.remindersRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = remindersAdapter
+    private fun updateEmptyState(isEmpty: Boolean) {
+        if (isEmpty) {
+            binding.emptyStateLayout.visibility = View.VISIBLE
+            binding.remindersRecyclerView.visibility = View.GONE
+            binding.selectedDateLayout.visibility = View.VISIBLE
+        } else {
+            binding.emptyStateLayout.visibility = View.GONE
+            binding.remindersRecyclerView.visibility = View.VISIBLE
+            binding.selectedDateLayout.visibility = View.VISIBLE
         }
     }
 
-    // --------------- FAB ---------------
+    // -------------------- Data: dogs + reminders --------------------
+
+    private fun loadDogs() {
+        // Load dogs using manager for the dog selection spinner in dialogs
+        scope.launch {
+            val res = FirebaseDataManager.getInstance().getDogs()
+            dogsList.clear()
+            dogsList.addAll(res.getOrNull().orEmpty())
+        }
+    }
+
+    private fun attachRemindersListener() {
+        // Real-time updates from root-level reminders
+        remindersListener?.remove()
+        remindersListener = FirebaseDataManager.getInstance().addRemindersListener { all ->
+            remindersList.clear()
+            remindersList.addAll(all) // already sorted asc by dateTime
+            binding.calendarView.notifyCalendarChanged()
+            applyFilterAndRender()
+            Log.d("RemindersFragment", "Listener received ${all.size} reminders")
+        }
+    }
+
+    // -------------------- FAB + Dialogs --------------------
 
     private fun setupFab() {
         binding.fabAddReminder.setOnClickListener {
             showAddReminderDialog()
         }
     }
-
-    // --------------- Firestore loading ---------------
-
-    private fun loadDogs() {
-        val userId = auth.currentUser?.uid ?: return
-        firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .get()
-            .addOnSuccessListener { documents ->
-                dogsList.clear()
-                for (document in documents) {
-                    val dog = document.toObject(Dog::class.java)
-                    dogsList.add(Pair(dog, document.id))
-                }
-            }
-    }
-
-    private fun loadReminders() {
-        val userId = auth.currentUser?.uid ?: return
-        Log.d("RemindersFragment", "Loading reminders for user: $userId")
-
-        firestore.collection("users")
-            .document(userId)
-            .collection("reminders")
-            .orderBy("dateTime", Query.Direction.ASCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                Log.d("RemindersFragment", "Found ${documents.size()} reminders")
-                remindersList.clear()
-                for (document in documents) {
-                    val reminder = document.toObject(Reminder::class.java)
-                    remindersList.add(reminder)
-                }
-                // Refresh calendar dots and render only the selected day
-                binding.calendarView.notifyCalendarChanged()
-                applyFilterAndRender()
-            }
-            .addOnFailureListener { exception ->
-                Log.e("RemindersFragment", "Failed to load reminders", exception)
-                remindersList.clear()
-                applyFilterAndRender()
-            }
-    }
-
-    // --------------- Dialogs ---------------
 
     private fun showAddReminderDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_reminder, null)
@@ -438,7 +438,7 @@ class RemindersFragment : Fragment() {
             .show()
     }
 
-    // --------------- Pickers ---------------
+    // -------------------- Pickers --------------------
 
     private fun showDatePicker(onDateSelected: (String) -> Unit) {
         val cal = Calendar.getInstance()
@@ -472,7 +472,7 @@ class RemindersFragment : Fragment() {
         ).show()
     }
 
-    // --------------- CRUD helpers ---------------
+    // -------------------- CRUD helpers (root collection) --------------------
 
     private fun addReminder(
         title: String,
@@ -484,8 +484,6 @@ class RemindersFragment : Fragment() {
         dogName: String,
         location: String = ""
     ) {
-        val userId = auth.currentUser?.uid ?: return
-
         val dateTimeString = "$date $time"
         val dateTimeFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
         val dateTime = dateTimeFormat.parse(dateTimeString)?.time ?: System.currentTimeMillis()
@@ -502,7 +500,14 @@ class RemindersFragment : Fragment() {
             isCompleted = false,
             createdAt = System.currentTimeMillis()
         )
-        saveReminderToFirebase(userId, reminder)
+
+        scope.launch {
+            val res = FirebaseDataManager.getInstance().saveReminderToRoot(reminder)
+            if (!res.isSuccess && isAdded) {
+                Toast.makeText(requireContext(), "Failed to save reminder", Toast.LENGTH_SHORT).show()
+            }
+            // Listener will refresh UI automatically
+        }
     }
 
     private fun updateReminder(
@@ -516,8 +521,6 @@ class RemindersFragment : Fragment() {
         dogName: String,
         location: String = ""
     ) {
-        val userId = auth.currentUser?.uid ?: return
-
         val dateTimeString = "$newDate $newTime"
         val dateTimeFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
         val dateTime = dateTimeFormat.parse(dateTimeString)?.time ?: reminder.dateTime
@@ -531,85 +534,29 @@ class RemindersFragment : Fragment() {
             dogName = dogName,
             location = location
         )
-        updateReminderInFirebase(userId, updatedReminder)
+
+        scope.launch {
+            val res = FirebaseDataManager.getInstance().updateReminderInRoot(updatedReminder)
+            if (!res.isSuccess && isAdded) {
+                Toast.makeText(requireContext(), "Failed to update reminder", Toast.LENGTH_SHORT).show()
+            }
+            // Listener will refresh UI automatically
+        }
     }
 
     private fun deleteReminder(reminder: Reminder) {
-        val userId = auth.currentUser?.uid
-        if (userId == null) {
-            if (isAdded) Toast.makeText(requireContext(), "Please log in to delete reminders", Toast.LENGTH_SHORT).show()
-            return
-        }
-        deleteReminderFromFirebase(userId, reminder)
-    }
-
-    private fun saveReminderToFirebase(userId: String, reminder: Reminder) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("reminders")
-            .document(reminder.id)
-            .set(reminder)
-            .addOnSuccessListener {
-                if (isAdded) Toast.makeText(requireContext(), "Reminder saved successfully", Toast.LENGTH_SHORT).show()
-                loadReminders()
+        scope.launch {
+            val res = FirebaseDataManager.getInstance().deleteReminderFromRoot(reminder.id)
+            if (!res.isSuccess && isAdded) {
+                Toast.makeText(requireContext(), "Failed to delete reminder", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener { exception ->
-                if (isAdded) Toast.makeText(requireContext(), "Failed to save reminder: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun updateReminderInFirebase(userId: String, reminder: Reminder) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("reminders")
-            .document(reminder.id)
-            .set(reminder)
-            .addOnSuccessListener {
-                if (isAdded) Toast.makeText(requireContext(), "Reminder updated", Toast.LENGTH_SHORT).show()
-                loadReminders()
-            }
-            .addOnFailureListener { exception ->
-                if (isAdded) Toast.makeText(requireContext(), "Failed to update reminder: ${exception.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    private fun deleteReminderFromFirebase(userId: String, reminder: Reminder) {
-        firestore.collection("users")
-            .document(userId)
-            .collection("reminders")
-            .document(reminder.id)
-            .delete()
-            .addOnSuccessListener {
-                if (isAdded) Toast.makeText(requireContext(), "Reminder deleted successfully", Toast.LENGTH_SHORT).show()
-                loadReminders()
-            }
-            .addOnFailureListener { exception ->
-                if (isAdded) Toast.makeText(requireContext(), "Failed to delete reminder: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    // --------------- UI state ---------------
-
-    private fun updateEmptyState(isEmpty: Boolean) {
-        if (isEmpty) {
-            binding.emptyStateLayout.visibility = View.VISIBLE
-            binding.remindersRecyclerView.visibility = View.GONE
-            binding.selectedDateLayout.visibility = View.VISIBLE // keep date header visible
-        } else {
-            binding.emptyStateLayout.visibility = View.GONE
-            binding.remindersRecyclerView.visibility = View.VISIBLE
-            binding.selectedDateLayout.visibility = View.VISIBLE
+            // Listener will refresh UI automatically
         }
     }
 
-    // --------------- Utils ---------------
+    // -------------------- Utils --------------------
 
     private fun millisToLocalDate(millis: Long): LocalDate {
         return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

@@ -8,8 +8,8 @@ import kotlinx.coroutines.tasks.await
 
 /**
  * Central Firebase Data Manager
- * Manages all Firebase operations with proper data hierarchy:
- * users/{userId}/dogs/{dogId}/{collection}/{documentId}
+ * - Dogs and their subcollections are nested under users/{uid}/dogs/{dogId}/...
+ * - Reminders for calendar/home are stored at root level: users/{uid}/reminders/{reminderId}
  */
 class FirebaseDataManager private constructor() {
 
@@ -46,12 +46,12 @@ class FirebaseDataManager private constructor() {
         }
     }
 
-    // DOGS OPERATIONS
+    // -------------------- DOGS --------------------
+
     suspend fun addDog(dog: Dog): Result<String> {
         return try {
             val dogsCollection = getUserDogsCollection()
                 ?: return Result.failure(Exception("User not logged in"))
-
             val docRef = dogsCollection.add(dog).await()
             Result.success(docRef.id)
         } catch (e: Exception) {
@@ -63,7 +63,6 @@ class FirebaseDataManager private constructor() {
         return try {
             val dogsCollection = getUserDogsCollection()
                 ?: return Result.failure(Exception("User not logged in"))
-
             val snapshot = dogsCollection.get().await()
             val dogs = snapshot.documents.mapNotNull { doc ->
                 val dog = doc.toObject(Dog::class.java)
@@ -79,7 +78,6 @@ class FirebaseDataManager private constructor() {
         return try {
             val dogsCollection = getUserDogsCollection()
                 ?: return Result.failure(Exception("User not logged in"))
-
             dogsCollection.document(dogId).set(dog).await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -97,10 +95,10 @@ class FirebaseDataManager private constructor() {
                 .collection("dogs")
                 .document(dogId)
 
-            // Delete all subcollections first
+            // Delete subcollections first
             deleteAllSubcollections(dogRef)
 
-            // Then delete the dog document
+            // Delete dog document
             dogRef.delete().await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -108,12 +106,12 @@ class FirebaseDataManager private constructor() {
         }
     }
 
-    // NOTES OPERATIONS
+    // -------------------- NOTES --------------------
+
     suspend fun addNote(dogId: String, note: DogNote): Result<Unit> {
         return try {
             val notesCollection = getDogSubCollection(dogId, "notes")
                 ?: return Result.failure(Exception("User not logged in"))
-
             notesCollection.document(note.id).set(note).await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -125,13 +123,10 @@ class FirebaseDataManager private constructor() {
         return try {
             val notesCollection = getDogSubCollection(dogId, "notes")
                 ?: return Result.failure(Exception("User not logged in"))
-
             val snapshot = notesCollection
                 .orderBy("lastModified", Query.Direction.DESCENDING)
                 .get().await()
-
-            val notes = snapshot.toObjects(DogNote::class.java)
-            Result.success(notes)
+            Result.success(snapshot.toObjects(DogNote::class.java))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -141,7 +136,6 @@ class FirebaseDataManager private constructor() {
         return try {
             val notesCollection = getDogSubCollection(dogId, "notes")
                 ?: return Result.failure(Exception("User not logged in"))
-
             notesCollection.document(note.id).set(note).await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -153,7 +147,6 @@ class FirebaseDataManager private constructor() {
         return try {
             val notesCollection = getDogSubCollection(dogId, "notes")
                 ?: return Result.failure(Exception("User not logged in"))
-
             notesCollection.document(noteId).delete().await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -161,12 +154,12 @@ class FirebaseDataManager private constructor() {
         }
     }
 
-    // POOP OPERATIONS
+    // -------------------- POOP --------------------
+
     suspend fun addPoop(dogId: String, poop: DogPoop): Result<Unit> {
         return try {
             val poopCollection = getDogSubCollection(dogId, "poop")
                 ?: return Result.failure(Exception("User not logged in"))
-
             poopCollection.document(poop.id).set(poop).await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -178,13 +171,10 @@ class FirebaseDataManager private constructor() {
         return try {
             val poopCollection = getDogSubCollection(dogId, "poop")
                 ?: return Result.failure(Exception("User not logged in"))
-
             val snapshot = poopCollection
                 .orderBy("lastModified", Query.Direction.DESCENDING)
                 .get().await()
-
-            val poopEntries = snapshot.toObjects(DogPoop::class.java)
-            Result.success(poopEntries)
+            Result.success(snapshot.toObjects(DogPoop::class.java))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -194,7 +184,6 @@ class FirebaseDataManager private constructor() {
         return try {
             val poopCollection = getDogSubCollection(dogId, "poop")
                 ?: return Result.failure(Exception("User not logged in"))
-
             poopCollection.document(poop.id).set(poop).await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -206,7 +195,6 @@ class FirebaseDataManager private constructor() {
         return try {
             val poopCollection = getDogSubCollection(dogId, "poop")
                 ?: return Result.failure(Exception("User not logged in"))
-
             poopCollection.document(poopId).delete().await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -214,101 +202,129 @@ class FirebaseDataManager private constructor() {
         }
     }
 
-    // REMINDERS OPERATIONS
-    suspend fun addReminder(dogId: String, reminder: Reminder): Result<Unit> {
+    // -------------------- REMINDERS (root: users/{uid}/reminders) --------------------
+
+    suspend fun getUpcomingReminders(limit: Int = 5): Result<List<Reminder>> {
         return try {
-            val remindersCollection = getDogSubCollection(dogId, "reminders")
-                ?: return Result.failure(Exception("User not logged in"))
-
-            remindersCollection.document(reminder.id).set(reminder).await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun getReminders(dogId: String): Result<List<Reminder>> {
-        return try {
-            val remindersCollection = getDogSubCollection(dogId, "reminders")
-                ?: return Result.failure(Exception("User not logged in"))
-
-            val snapshot = remindersCollection
-                .orderBy("dateTime", Query.Direction.ASCENDING)
-                .get().await()
-
-            val reminders = snapshot.toObjects(Reminder::class.java)
-            Result.success(reminders)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun getAllReminders(): Result<List<Reminder>> {
-        return try {
-            val userId = getCurrentUserId()
-                ?: return Result.failure(Exception("User not logged in"))
-
-            val dogsSnapshot = firestore.collection("users")
+            val userId = getCurrentUserId() ?: return Result.failure(Exception("User not logged in"))
+            val now = System.currentTimeMillis()
+            val snapshot = firestore.collection("users")
                 .document(userId)
-                .collection("dogs")
+                .collection("reminders")
+                .whereGreaterThanOrEqualTo("dateTime", now)
+                .orderBy("dateTime", Query.Direction.ASCENDING)
+                .limit(limit.toLong())
                 .get().await()
+            Result.success(snapshot.toObjects(Reminder::class.java))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
-            val allReminders = mutableListOf<Reminder>()
+    suspend fun saveReminderToRoot(reminder: Reminder): Result<Unit> {
+        return try {
+            val userId = getCurrentUserId() ?: return Result.failure(Exception("User not logged in"))
+            firestore.collection("users")
+                .document(userId)
+                .collection("reminders")
+                .document(reminder.id)
+                .set(reminder)
+                .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
-            for (dogDoc in dogsSnapshot.documents) {
-                val remindersSnapshot = dogDoc.reference
-                    .collection("reminders")
-                    .get().await()
+    suspend fun updateReminderInRoot(reminder: Reminder): Result<Unit> {
+        return try {
+            val userId = getCurrentUserId() ?: return Result.failure(Exception("User not logged in"))
+            firestore.collection("users")
+                .document(userId)
+                .collection("reminders")
+                .document(reminder.id)
+                .set(reminder)
+                .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
-                val reminders = remindersSnapshot.toObjects(Reminder::class.java)
-                allReminders.addAll(reminders)
+    suspend fun deleteReminderFromRoot(reminderId: String): Result<Unit> {
+        return try {
+            val userId = getCurrentUserId() ?: return Result.failure(Exception("User not logged in"))
+            firestore.collection("users")
+                .document(userId)
+                .collection("reminders")
+                .document(reminderId)
+                .delete()
+                .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun addRemindersListener(onUpdate: (List<Reminder>) -> Unit): ListenerRegistration? {
+        val userId = getCurrentUserId() ?: return null
+        return firestore.collection("users")
+            .document(userId)
+            .collection("reminders")
+            .orderBy("dateTime", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    android.util.Log.e("FirebaseDataManager", "Reminders listener error", error)
+                    return@addSnapshotListener
+                }
+                val list = snapshot?.toObjects(Reminder::class.java).orEmpty()
+                onUpdate(list)
             }
+    }
 
-            // Sort by date
-            allReminders.sortBy { it.dateTime }
-            Result.success(allReminders)
-        } catch (e: Exception) {
-            Result.failure(e)
+    // -------------------- REAL-TIME LISTENERS (dogs/notes) --------------------
+
+    fun addDogsListener(onUpdate: (List<Pair<Dog, String>>) -> Unit): ListenerRegistration? {
+        return getUserDogsCollection()?.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                android.util.Log.e("FirebaseDataManager", "Dogs listener error", error)
+                return@addSnapshotListener
+            }
+            if (snapshot != null) {
+                val dogs = snapshot.documents.mapNotNull { doc ->
+                    val dog = doc.toObject(Dog::class.java)
+                    if (dog != null) Pair(dog, doc.id) else null
+                }
+                onUpdate(dogs)
+            }
         }
     }
 
-    suspend fun updateReminder(dogId: String, reminder: Reminder): Result<Unit> {
-        return try {
-            val remindersCollection = getDogSubCollection(dogId, "reminders")
-                ?: return Result.failure(Exception("User not logged in"))
-
-            remindersCollection.document(reminder.id).set(reminder).await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    fun addNotesListener(dogId: String, onUpdate: (List<DogNote>) -> Unit): ListenerRegistration? {
+        return getDogSubCollection(dogId, "notes")
+            ?.orderBy("lastModified", Query.Direction.DESCENDING)
+            ?.addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    android.util.Log.e("FirebaseDataManager", "Notes listener error", error)
+                    return@addSnapshotListener
+                }
+                val notes = snapshot?.toObjects(DogNote::class.java).orEmpty()
+                onUpdate(notes)
+            }
     }
 
-    suspend fun deleteReminder(dogId: String, reminderId: String): Result<Unit> {
-        return try {
-            val remindersCollection = getDogSubCollection(dogId, "reminders")
-                ?: return Result.failure(Exception("User not logged in"))
+    // -------------------- WALKS --------------------
 
-            remindersCollection.document(reminderId).delete().await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    // WALKS OPERATIONS - Save walk completion data
     suspend fun saveWalkCompletion(dogId: String, date: String, walkType: String, isCompleted: Boolean): Result<Unit> {
         return try {
             val walksCollection = getDogSubCollection(dogId, "walks")
                 ?: return Result.failure(Exception("User not logged in"))
-
             val walkData = mapOf(
                 "date" to date,
                 "walkType" to walkType,
                 "isCompleted" to isCompleted,
                 "timestamp" to System.currentTimeMillis()
             )
-
             walksCollection.document("${date}_${walkType}").set(walkData).await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -320,10 +336,8 @@ class FirebaseDataManager private constructor() {
         return try {
             val walksCollection = getDogSubCollection(dogId, "walks")
                 ?: return Result.failure(Exception("User not logged in"))
-
             val docRef = walksCollection.document("${date}_${walkType}")
             val snapshot = docRef.get().await()
-
             if (snapshot.exists()) {
                 val isCompleted = snapshot.getBoolean("isCompleted") ?: false
                 Result.success(isCompleted)
@@ -335,16 +349,15 @@ class FirebaseDataManager private constructor() {
         }
     }
 
-    // IMAGE OPERATIONS
+    // -------------------- IMAGES --------------------
+
     suspend fun uploadImage(dogId: String, imageUri: android.net.Uri, folder: String): Result<String> {
         return try {
             val userId = getCurrentUserId()
                 ?: return Result.failure(Exception("User not logged in"))
-
             val imageRef = storage.reference.child("$folder/${userId}/${dogId}/${System.currentTimeMillis()}.jpg")
-            val uploadTask = imageRef.putFile(imageUri).await()
+            imageRef.putFile(imageUri).await()
             val downloadUrl = imageRef.downloadUrl.await()
-
             Result.success(downloadUrl.toString())
         } catch (e: Exception) {
             Result.failure(e)
@@ -361,10 +374,10 @@ class FirebaseDataManager private constructor() {
         }
     }
 
-    // UTILITY FUNCTIONS
+    // -------------------- INTERNAL UTILS --------------------
+
     private suspend fun deleteAllSubcollections(dogRef: DocumentReference) {
         val subcollections = listOf("notes", "poop", "reminders", "walks")
-
         for (collection in subcollections) {
             try {
                 val snapshot = dogRef.collection(collection).get().await()
@@ -372,89 +385,8 @@ class FirebaseDataManager private constructor() {
                     doc.reference.delete().await()
                 }
             } catch (e: Exception) {
-                // Continue even if one subcollection fails
                 android.util.Log.e("FirebaseDataManager", "Failed to delete $collection", e)
             }
         }
-    }
-
-    // LISTENER FUNCTIONS FOR REAL-TIME UPDATES
-    fun addDogsListener(onUpdate: (List<Pair<Dog, String>>) -> Unit): ListenerRegistration? {
-        return getUserDogsCollection()?.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                android.util.Log.e("FirebaseDataManager", "Dogs listener error", error)
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null) {
-                val dogs = snapshot.documents.mapNotNull { doc ->
-                    val dog = doc.toObject(Dog::class.java)
-                    if (dog != null) Pair(dog, doc.id) else null
-                }
-                onUpdate(dogs)
-            }
-        }
-    }
-
-    fun addNotesListener(dogId: String, onUpdate: (List<DogNote>) -> Unit): ListenerRegistration? {
-        return getDogSubCollection(dogId, "notes")?.orderBy("lastModified", Query.Direction.DESCENDING)
-            ?.addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    android.util.Log.e("FirebaseDataManager", "Notes listener error", error)
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
-                    val notes = snapshot.toObjects(DogNote::class.java)
-                    onUpdate(notes)
-                }
-            }
-    }
-
-    fun addRemindersListener(onUpdate: (List<Reminder>) -> Unit): ListenerRegistration? {
-        val userId = getCurrentUserId() ?: return null
-
-        return firestore.collection("users")
-            .document(userId)
-            .collection("dogs")
-            .addSnapshotListener { dogsSnapshot, error ->
-                if (error != null) {
-                    android.util.Log.e("FirebaseDataManager", "Reminders listener error", error)
-                    return@addSnapshotListener
-                }
-
-                if (dogsSnapshot != null) {
-                    val allReminders = mutableListOf<Reminder>()
-                    var completedQueries = 0
-                    val totalDogs = dogsSnapshot.size()
-
-                    if (totalDogs == 0) {
-                        onUpdate(emptyList())
-                        return@addSnapshotListener
-                    }
-
-                    for (dogDoc in dogsSnapshot.documents) {
-                        dogDoc.reference.collection("reminders")
-                            .get()
-                            .addOnSuccessListener { remindersSnapshot ->
-                                val reminders = remindersSnapshot.toObjects(Reminder::class.java)
-                                allReminders.addAll(reminders)
-                                completedQueries++
-
-                                if (completedQueries == totalDogs) {
-                                    allReminders.sortBy { it.dateTime }
-                                    onUpdate(allReminders)
-                                }
-                            }
-                            .addOnFailureListener {
-                                completedQueries++
-                                if (completedQueries == totalDogs) {
-                                    allReminders.sortBy { it.dateTime }
-                                    onUpdate(allReminders)
-                                }
-                            }
-                    }
-                }
-            }
     }
 }
