@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    A redesigned dog profile screen inspired by the provided reference.  This
+    layout presents a large header image with a camera button overlay for
+    changing the dog's photo, followed by a Basic Info section laid out
+    in a grid.  The tags associated with the dog are displayed in a Chip
+    group below, and a grid of activity cards remains at the bottom.  The
+    colours and styling align with the app's palette (pink and yellow).
+-->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9F9F9"
+    android:background="@color/bg_light"
     android:fillViewport="true">
 
     <LinearLayout
@@ -12,19 +19,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header like Settings/Home (no title text) -->
-        <!-- Header -->
+        <!-- Header similar to Settings screen -->
         <LinearLayout
-            android:id="@+id/dogProfile_HEADER"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:elevation="4dp"
             android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="0dp">  <!-- important: no bottom padding -->
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -37,7 +39,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/back"
+                    android:contentDescription="Back"
                     android:padding="8dp"
                     android:src="@drawable/ic_arrow_left"
                     app:tint="@color/Primary_pink" />
@@ -45,192 +47,439 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:text="Dog Profile"
+                    android:textColor="@color/black"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
             </LinearLayout>
+
         </LinearLayout>
 
-        <!-- Content -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/dogProfileLayout"
+        <!-- Content container with padding -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="100dp">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Image with elevation via MaterialCardView -->
+            <!-- Header image with camera button overlay -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/dogProfile_IMG_container"
-                android:layout_width="0dp"
-                android:layout_height="250dp"
-                android:layout_marginTop="0dp"
-                android:background="@android:color/transparent"
-                app:cardCornerRadius="0dp"
-                app:cardElevation="4dp"
-                app:cardUseCompatPadding="false"
-                app:contentPadding="0dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/Secondary_pink"
+                app:strokeWidth="1dp">
 
-                <ImageView
-                    android:id="@+id/dogProfile_IMG_header"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:adjustViewBounds="false"
-                    android:contentDescription="@string/dog_default_image"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/default_dog_img" />
+                    android:layout_height="match_parent">
+
+                    <!-- Dog image -->
+                    <ImageView
+                        android:id="@+id/profile_img_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/user_default_img" />
+
+                    <!-- Camera button for future image editing -->
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/profile_btn_camera"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|end"
+                        android:layout_margin="12dp"
+                        android:contentDescription="@string/edit_profile_image"
+                        app:backgroundTint="@color/Primary_yellow"
+                        app:fabSize="mini"
+                        app:maxImageSize="32dp"
+                        app:srcCompat="@drawable/camera_ic"
+                        app:tint="@android:color/black" />
+                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/dogProfile_LBL_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/dog_name_placeholder"
-                android:textColor="@color/Primary_pink"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dogProfile_IMG_container" />
-
-            <TextView
-                android:id="@+id/dogProfile_LBL_breedAndAge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/breed_age_placeholder"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dogProfile_LBL_name" />
-
+            <!-- Dog name and breed/age -->
             <LinearLayout
-                android:id="@+id/dogProfile_LAYOUT_infoCards"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dogProfile_LBL_breedAndAge">
+                android:orientation="vertical"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/profile_dog_name"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_s"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="#F0F0F0"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
+                    android:text="Dog Name"
+                    android:textColor="@color/black"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/dogProfile_LBL_color"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:padding="12dp"
-                        android:text="@string/color_placeholder"
-                        android:textColor="#000000"
-                        android:textSize="13sp" />
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/profile_dog_breed_age"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_s"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="#F0F0F0"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
-
-                    <TextView
-                        android:id="@+id/dogProfile_LBL_weight"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:padding="12dp"
-                        android:text="@string/weight_placeholder"
-                        android:textColor="#000000"
-                        android:textSize="13sp" />
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_s"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="#F0F0F0"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="2dp">
-
-                    <TextView
-                        android:id="@+id/dogProfile_LBL_birthday"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:padding="12dp"
-                        android:text="@string/birthday_placeholder"
-                        android:textColor="#000000"
-                        android:textSize="13sp" />
-                </androidx.cardview.widget.CardView>
+                    android:layout_marginTop="4dp"
+                    android:text="Breed • Age"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="14sp" />
             </LinearLayout>
 
+            <!-- Basic Info header with optional Edit button -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Basic Info"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/profile_btn_edit_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="Edit"
+                    android:textColor="@color/Primary_pink"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Grid for Basic Info (breed, age, weight, birthday, colour) -->
+            <GridLayout
+                android:id="@+id/profile_grid_basic_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alignmentMode="alignMargins"
+                android:columnCount="2"
+                android:rowCount="3"
+                android:rowOrderPreserved="false"
+                android:useDefaultMargins="true">
+
+                <!-- Breed -->
+                <LinearLayout
+                    android:id="@+id/profile_item_breed"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/Secondary_pink"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/Secondary_pink">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_paws_small"
+                            app:tint="@color/Primary_pink" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Breed"
+                            android:textColor="@color/gray_dark"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/profile_value_breed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Breed Name"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Age -->
+                <LinearLayout
+                    android:id="@+id/profile_item_age"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/Secondary_yellow"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/Secondary_yellow">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/calendar_ic"
+                            app:tint="@color/Primary_yellow" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Age"
+                            android:textColor="@color/gray_dark"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/profile_value_age"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3 years"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Weight -->
+                <LinearLayout
+                    android:id="@+id/profile_item_weight"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/Secondary_green"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/Secondary_green">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_weight"
+                            app:tint="@color/lima_600" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Weight"
+                            android:textColor="@color/gray_dark"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/profile_value_weight"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 kg"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Birthday -->
+                <LinearLayout
+                    android:id="@+id/profile_item_birthday"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/Secondary_blue"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/Secondary_blue">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/calendar_ic"
+                            app:tint="@color/malibu_600" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Birthday"
+                            android:textColor="@color/gray_dark"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/profile_value_birthday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Jan 1"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Color -->
+                <LinearLayout
+                    android:id="@+id/profile_item_color"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/Secondary_orange"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/Secondary_orange">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_paws_small"
+                            app:tint="@color/orange_600" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Color"
+                            android:textColor="@color/gray_dark"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/profile_value_color"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Unknown"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </GridLayout>
+
+            <!-- Tags -->
             <TextView
-                android:id="@+id/dogProfile_LBL_tagsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:text="@string/tags_personality_title"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dogProfile_LAYOUT_infoCards" />
+                android:layout_marginTop="16dp"
+                android:text="Tags"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <com.google.android.material.chip.ChipGroup
-                android:id="@+id/dogProfile_CHIPS_tags"
-                android:layout_width="0dp"
+                android:id="@+id/profile_chip_tags"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
                 app:chipSpacing="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dogProfile_LBL_tagsTitle"
-                app:singleLine="false" />
+                app:singleLine="false"
+                app:singleSelection="false" />
 
-            <TextView
-                android:id="@+id/dogProfile_LBL_careTitle"
-                android:layout_width="wrap_content"
+            <!-- Activities in a card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:text="@string/care_activities_title"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dogProfile_CHIPS_tags" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/dogProfile_RECYCLER_activities"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="48dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dogProfile_LBL_careTitle"
-                tools:listitem="@layout/item_card_activity" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/bg_grey"
+                app:strokeWidth="1dp">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Activities"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/profile_recycler_activities"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
