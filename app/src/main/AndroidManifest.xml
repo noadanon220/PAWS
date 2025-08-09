@@ -58,6 +58,11 @@
             android:name=".MainActivity"
             android:exported="true" />
 
+        <!-- Registration screen for new users -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>

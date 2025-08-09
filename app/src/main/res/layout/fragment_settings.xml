@@ -177,6 +177,5 @@
             </LinearLayout>
 
         </LinearLayout>
-        <!-- המשך מקטע ההגדרות ממשיך את האלמנטים האחרים (Language, Notifications, Dark Mode, Help) -->
     </LinearLayout>
 </ScrollView>
