@@ -1,23 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Dialog view: circular photo + yellow edit FAB + white outlined inputs -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/add_poop_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="20dp">
 
-    <!-- Color Selection -->
+    <!-- Circular image with stroke (like dialog_edit_profile) + yellow FAB -->
+    <FrameLayout
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/poop_CARD_image"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            app:cardBackgroundColor="@color/bg_grey"
+            app:cardCornerRadius="@dimen/AddDog_img_corners_100dp"
+            app:cardElevation="@dimen/cardview_default_elevation"
+            app:strokeColor="@color/Secondary_pink"
+            app:strokeWidth="@dimen/AddDog_img_stroke_4dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/poopImagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/edit_profile_image"
+                android:scaleType="centerCrop"
+                app:tint="@color/gray_dark"
+                android:src="@drawable/ic_poop" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="2dp"
+            android:contentDescription="@string/edit_profile_image"
+            app:backgroundTint="@color/Primary_yellow"
+            app:fabSize="mini"
+            app:maxImageSize="32dp"
+            app:srcCompat="@drawable/camera_ic"
+            app:tint="@android:color/black" />
+    </FrameLayout>
+
+    <!-- Poop Color (outlined white like setup/profile dialogs) -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_poop_color"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:hint="Poop Color"
+        android:layout_marginBottom="16dp"
         app:boxBackgroundMode="outline"
-        app:boxBackgroundColor="@color/bg_light_grey"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
+        app:boxBackgroundColor="@color/white"
         app:boxCornerRadiusTopStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusBottomEnd="12dp"
         app:endIconMode="dropdown_menu">
 
         <AutoCompleteTextView
@@ -26,22 +71,23 @@
             android:layout_height="wrap_content"
             android:inputType="none"
             android:focusable="false"
-            android:clickable="true" />
-
+            android:clickable="true"
+            android:padding="12dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Consistency Selection -->
+    <!-- Consistency -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_poop_consistency"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:hint="Consistency"
+        android:layout_marginBottom="16dp"
         app:boxBackgroundMode="outline"
-        app:boxBackgroundColor="@color/bg_light_grey"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
+        app:boxBackgroundColor="@color/white"
         app:boxCornerRadiusTopStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusBottomEnd="12dp"
         app:endIconMode="dropdown_menu">
 
         <AutoCompleteTextView
@@ -50,74 +96,32 @@
             android:layout_height="wrap_content"
             android:inputType="none"
             android:focusable="false"
-            android:clickable="true" />
-
+            android:clickable="true"
+            android:padding="12dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Notes Field -->
+    <!-- Notes -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_poop_notes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:hint="Notes (Optional)"
+        android:layout_marginBottom="8dp"
         app:boxBackgroundMode="outline"
-        app:boxBackgroundColor="@color/bg_light_grey"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusTopStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusBottomEnd="12dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/poopNotes"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="120dp"
             android:gravity="top|start"
             android:inputType="textMultiLine|textCapSentences"
-            android:maxLines="4" />
-
+            android:maxLines="5"
+            android:padding="12dp" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Image Section -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Photo (Optional)"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_marginBottom="8dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="16dp">
-
-        <!-- Image Preview -->
-        <ImageView
-            android:id="@+id/poopImagePreview"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/rounded_background_light"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            android:contentDescription="Poop image preview" />
-
-        <!-- Add Image Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/addImageButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="📷 Add Photo"
-            android:textColor="@color/orange_600"
-            app:strokeColor="@color/orange_600"
-            app:strokeWidth="2dp"
-            app:cornerRadius="12dp" />
-
-    </LinearLayout>
 
 </LinearLayout>

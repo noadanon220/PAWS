@@ -18,10 +18,11 @@ import androidx.navigation.fragment.findNavController
 import com.danono.paws.databinding.FragmentSetupProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.storage.FirebaseStorage
 
 /**
  * Profile setup screen with image picker/camera.
- * Falls back to user_default_img if the user has no photo.
+ * Uploads the chosen image to Firebase Storage and updates FirebaseAuth (displayName + photoUrl).
  */
 class SetupProfileFragment : Fragment() {
 
@@ -29,6 +30,7 @@ class SetupProfileFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val storage: FirebaseStorage by lazy { FirebaseStorage.getInstance() }
 
     // Selected/captured image URIs
     private var selectedImageUri: Uri? = null
@@ -40,7 +42,6 @@ class SetupProfileFragment : Fragment() {
     ) { uri ->
         uri?.let {
             selectedImageUri = it
-            // Update preview with the selected image
             binding.profileImgAvatar.setImageURI(it)
         }
     }
@@ -51,7 +52,6 @@ class SetupProfileFragment : Fragment() {
     ) { success ->
         if (success && cameraImageUri != null) {
             selectedImageUri = cameraImageUri
-            // Update preview with the captured image
             binding.profileImgAvatar.setImageURI(cameraImageUri)
         } else {
             Toast.makeText(requireContext(), "Failed to capture image", Toast.LENGTH_SHORT).show()
@@ -82,43 +82,70 @@ class SetupProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val currentUser = auth.currentUser
-
-        // Prefill display name if exists
         binding.loginEDTEmail.setText(currentUser?.displayName ?: "")
-
-        // Ensure initial photo state (existing photo or default)
         applyInitialPhoto(currentUser?.photoUrl)
 
-        // Save profile (display name + optional photo uri)
         binding.profileBtnSave.setOnClickListener {
+            val user = auth.currentUser
             val newName = binding.loginEDTEmail.text.toString().trim()
+
+            if (user == null) {
+                Toast.makeText(requireContext(), "Not logged in", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             if (newName.isEmpty()) {
                 Toast.makeText(requireContext(), "Please enter a username", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val builder = UserProfileChangeRequest.Builder()
-                .setDisplayName(newName)
-
-            // If user picked or captured an image, set it on the auth profile.
-            // Note: For persistence across devices, upload to Firebase Storage and use the download URL.
-            selectedImageUri?.let { builder.setPhotoUri(it) }
-
-            currentUser?.updateProfile(builder.build())
-                ?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        findNavController().navigate(R.id.action_setupProfileFragment_to_navigation_home)
+            // If image selected -> upload, then update Auth profile with download URL + name
+            val localUri = selectedImageUri
+            if (localUri != null) {
+                val ref = storage.reference.child("users/${user.uid}/profile/${System.currentTimeMillis()}.jpg")
+                ref.putFile(localUri)
+                    .continueWithTask { task ->
+                        if (!task.isSuccessful) throw task.exception ?: Exception("Upload failed")
+                        ref.downloadUrl
+                    }
+                    .addOnSuccessListener { downloadUri ->
+                        val updates = UserProfileChangeRequest.Builder()
+                            .setDisplayName(newName)
+                            .setPhotoUri(downloadUri)
+                            .build()
+                        user.updateProfile(updates).addOnCompleteListener { t ->
+                            if (t.isSuccessful) {
+                                goToHome()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed to update profile: ${t.exception?.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(requireContext(), "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                // No image selected: update name only
+                val updates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(newName)
+                    .build()
+                user.updateProfile(updates).addOnCompleteListener { t ->
+                    if (t.isSuccessful) {
+                        goToHome()
                     } else {
                         Toast.makeText(
                             requireContext(),
-                            "Failed to update profile: ${task.exception?.message}",
+                            "Failed to update profile: ${t.exception?.message}",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
+            }
         }
 
-        // Open image source options
         binding.profileBtnCamera.setOnClickListener { showImagePickerOptions() }
     }
 
@@ -141,7 +168,6 @@ class SetupProfileFragment : Fragment() {
             .show()
     }
 
-    // Request camera permission if needed
     private fun requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
             == PackageManager.PERMISSION_GRANTED
@@ -152,13 +178,11 @@ class SetupProfileFragment : Fragment() {
         }
     }
 
-    // Launch camera capture flow
     private fun launchCamera() {
         cameraImageUri = createImageUri()
         takePhotoLauncher.launch(cameraImageUri)
     }
 
-    // Create output Uri for the captured image
     private fun createImageUri(): Uri {
         val contentValues = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, "profile_${System.currentTimeMillis()}.jpg")
@@ -170,12 +194,15 @@ class SetupProfileFragment : Fragment() {
         )!!
     }
 
-    // Initialize avatar with selected/existing/default image
     private fun applyInitialPhoto(existingPhotoUri: Uri?) {
         when {
             selectedImageUri != null -> binding.profileImgAvatar.setImageURI(selectedImageUri)
-            existingPhotoUri != null   -> binding.profileImgAvatar.setImageURI(existingPhotoUri)
-            else                       -> binding.profileImgAvatar.setImageResource(R.drawable.user_default_img)
+            existingPhotoUri != null -> binding.profileImgAvatar.setImageURI(existingPhotoUri)
+            else -> binding.profileImgAvatar.setImageResource(R.drawable.user_default_img)
         }
+    }
+
+    private fun goToHome() {
+        findNavController().navigate(R.id.action_setupProfileFragment_to_navigation_home)
     }
 }

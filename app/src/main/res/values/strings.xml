@@ -84,4 +84,31 @@
     <string name="desc_add_reminder">Add reminder</string>
 
 
+    <string name="you_can_always_update_your_profile_later">You can always update your profile later</string>
+
+
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="change_photo">Change photo</string>
+    <string name="display_name">Display name</string>
+
+
+    <!-- Settings / Edit profile dialog -->
+
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+
+
+    <string name="choose_image_source">Choose image source</string>
+    <string name="choose_from_phone">Choose from phone</string>
+    <string name="take_a_photo">Take a photo</string>
+    <string name="camera_permission_required">Camera permission is required</string>
+    <string name="please_enter_display_name">Please enter a display name</string>
+    <string name="profile_updated">Profile updated</string>
+
+    <string name="logout">Logout</string>
+    <string name="dog_profile_title">Dog Profile</string>
+
+
 </resources>

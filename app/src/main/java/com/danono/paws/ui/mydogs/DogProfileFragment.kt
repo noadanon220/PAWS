@@ -126,11 +126,9 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
     private fun setupActivityCards() {
         val activities = listOf(
             DogActivityCard("Notes", R.drawable.ic_notes, R.color.Secondary_pink, R.color.Primary_pink),
-            DogActivityCard("Food", R.drawable.ic_food, R.color.Secondary_green, R.color.lima_700),
-            DogActivityCard("Walks", R.drawable.ic_weight, R.color.Secondary_blue, R.color.malibu_600),
-            DogActivityCard("Medicine", R.drawable.ic_training, R.color.Secondary_yellow, R.color.Primary_yellow),
+            DogActivityCard("Walks", R.drawable.ic_walk, R.color.Secondary_blue, R.color.malibu_600),
+            DogActivityCard("Weight", R.drawable.ic_weight, R.color.Secondary_yellow, R.color.Primary_yellow),
             DogActivityCard("Poop", R.drawable.ic_poop, R.color.Secondary_orange, R.color.orange_600),
-            DogActivityCard("Training", R.drawable.ic_training, R.color.purple_100, R.color.purple_600)
         )
 
         activitiesAdapter = ActivitiesAdapter(activities) { card -> handleActivityCardClick(card) }

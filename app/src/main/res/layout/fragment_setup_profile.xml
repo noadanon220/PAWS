@@ -209,7 +209,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="You can always update your profile later"
+            android:text="@string/you_can_always_update_your_profile_later"
             android:textColor="@color/text_gray_dark"
             android:textSize="@dimen/text_size_body" />
     </LinearLayout>
