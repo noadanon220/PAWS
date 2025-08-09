@@ -61,5 +61,17 @@
     <string name="add_dog">Add dog</string>
 
 
+    <string name="home_quick_actions">Quick Access</string>
+    <string name="home_quick_action_reminders">Reminders</string>
+    <string name="home_quick_action_map">Map</string>
+    <string name="home_quick_action_settings">Settings</string>
+
+
+    <!-- Home screen titles -->
+    <string name="home_nearby_dog_parks">Nearby Dog Parks</string>
+    <string name="home_view_all">View all</string>
+    <string name="home_map_preview">Map preview</string>
+    <string name="home_upcoming_reminders">Upcoming Reminders</string>
+    <string name="desc_add_reminder">Add reminder</string>
 
 </resources>

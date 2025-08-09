@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,91 +9,194 @@
     android:fillViewport="true"
     tools:context=".ui.home.HomeFragment">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header (like Settings), with the two FABs -->
+        <!-- Header -->
         <LinearLayout
+            android:id="@+id/home_LAY_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:elevation="4dp"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center_vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/home_txt_header"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:text="@string/home_paws"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/backButton"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/back"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_arrow_left"
-                    app:tint="@color/Primary_pink" />
-
-                <TextView
-                    android:id="@+id/home_txt_header"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:text="@string/home_paws"
-                    android:textColor="@color/black"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/home_fab_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/margin_m"
-                    android:contentDescription="@string/desc_reminders"
-                    app:backgroundTint="@color/black"
-                    app:fabSize="mini"
-                    app:maxImageSize="@dimen/icon_size_fab_mini"
-                    app:srcCompat="@drawable/calendar_ic"
-                    app:tint="@android:color/white" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/add_dog"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/add_dog"
-                    app:backgroundTint="@color/Primary_yellow"
-                    app:fabSize="mini"
-                    app:maxImageSize="@dimen/icon_size_fab_mini"
-                    app:srcCompat="@drawable/round_add_24"
-                    app:tint="@color/black" />
-            </LinearLayout>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_dog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/add_dog"
+                app:backgroundTint="@color/Primary_yellow"
+                app:fabSize="mini"
+                app:maxImageSize="32dp"
+                app:srcCompat="@drawable/round_add_24"
+                app:tint="@color/black" />
         </LinearLayout>
 
+        <!-- Your dogs section -->
         <TextView
             android:id="@+id/home_TXT_your_dogs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_l"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
             android:text="@string/HOME_your_dogs"
-            android:textSize="@dimen/text_size_title"
+            android:textColor="@color/black"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Horizontal list works fine inside vertical ScrollView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/home_RV_dogs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_l"
-            android:layout_marginEnd="@dimen/margin_l"
-            android:layout_marginTop="@dimen/margin_m"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
             android:clipToPadding="false"
             android:orientation="horizontal"
+            android:nestedScrollingEnabled="false"
             android:paddingBottom="8dp" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
-</ScrollView>
+
+        <!-- First card: Nearby Dog Parks -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/home_card_nearby_parks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/bg_grey">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Header row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/home_TXT_nearby_parks"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/home_nearby_dog_parks"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/home_btn_view_all_parks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/home_view_all"
+                        android:textColor="@color/Primary_pink"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Map preview -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:layout_marginTop="8dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/bg_grey"
+                    app:strokeWidth="1dp">
+
+                    <ImageView
+                        android:id="@+id/home_img_map_preview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="@string/home_map_preview"
+                        android:src="@drawable/ic_google" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Second card: Upcoming Reminders -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/home_card_upcoming_reminders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/bg_grey">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Header row for reminders -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/home_TXT_upcoming_reminders"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/home_upcoming_reminders"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/home_fab_add_reminder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/desc_add_reminder"
+                        app:backgroundTint="@color/Primary_yellow"
+                        app:fabSize="mini"
+                        app:maxImageSize="24dp"
+                        app:srcCompat="@drawable/round_add_24"
+                        app:tint="@color/black" />
+                </LinearLayout>
+
+                <!-- RecyclerView for reminders -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/home_RV_reminders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
