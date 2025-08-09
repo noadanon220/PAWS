@@ -35,100 +35,82 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
         setupActivityCards()
         observeSelectedDog()
 
+        // Camera button (placeholder)
+        binding.profileBtnCamera.setOnClickListener {
+            Toast.makeText(requireContext(), "Change photo feature coming soon", Toast.LENGTH_SHORT).show()
+        }
+
+        // Back button navigates up
+        binding.backButton.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         Log.d("DogProfileFragment", "Fragment created and observing selected dog")
+
+        binding.profileRecyclerActivities.isNestedScrollingEnabled = false
+
     }
 
     override fun onResume() {
         super.onResume()
-        // Re-observe the selected dog when returning to this fragment
-        Log.d("DogProfileFragment", "Fragment resumed - checking selected dog")
-
         val selectedDog = sharedViewModel.selectedDog.value
         val selectedDogId = sharedViewModel.selectedDogId.value
-
-        Log.d("DogProfileFragment", "Current selected dog: ${selectedDog?.name}, ID: $selectedDogId")
 
         if (selectedDog != null) {
             bindDogData(selectedDog)
         } else {
-            Log.w("DogProfileFragment", "No selected dog found - navigating back")
             findNavController().navigateUp()
         }
     }
 
     private fun observeSelectedDog() {
         sharedViewModel.selectedDog.observe(viewLifecycleOwner) { dog ->
-            Log.d("DogProfileFragment", "Selected dog changed: ${dog?.name}")
-            dog?.let {
-                bindDogData(it)
-            } ?: run {
-                Log.w("DogProfileFragment", "Selected dog is null")
-            }
+            dog?.let { bindDogData(it) }
         }
-
-        sharedViewModel.selectedDogId.observe(viewLifecycleOwner) { dogId ->
-            Log.d("DogProfileFragment", "Selected dog ID changed: $dogId")
-        }
+        sharedViewModel.selectedDogId.observe(viewLifecycleOwner) { /* no-op */ }
     }
 
     private fun bindDogData(dog: Dog) {
-        Log.d("DogProfileFragment", "Binding data for dog: ${dog.name}")
-
         try {
-            // Set dog name
-            binding.dogProfileLBLName.text = dog.name
-
-            // Set breed and age
+            binding.profileDogName.text = dog.name
             val age = calculateAge(dog.birthDate)
-            binding.dogProfileLBLBreedAndAge.text = "${dog.breedName} • $age years old"
+            binding.profileDogBreedAge.text = "${dog.breedName} • $age years old"
 
-            // Load dog image using ImageLoader
-            ImageLoader.getInstance().loadDogImage(dog.imageUrl, binding.dogProfileIMGHeader)
+            ImageLoader.getInstance().loadDogImage(dog.imageUrl, binding.profileImgHeader)
 
-            // Set color info
+            binding.profileValueBreed.text = dog.breedName
+            binding.profileValueAge.text = "$age years"
+            binding.profileValueWeight.text = "${dog.weight} kg"
+
+            val birthDate = SimpleDateFormat("MMM dd", Locale.getDefault()).format(Date(dog.birthDate))
+            binding.profileValueBirthday.text = birthDate
+
             if (dog.color.isNotEmpty()) {
-                val colorName = dog.color.first().replace("dog_color_", "").replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-                }
-                binding.dogProfileLBLColor.text = "Color\n$colorName"
+                val colorName = dog.color.first()
+                    .replace("dog_color_", "")
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                binding.profileValueColor.text = colorName
             } else {
-                binding.dogProfileLBLColor.text = "Color\nUnknown"
+                binding.profileValueColor.text = "Unknown"
             }
 
-            // Set weight
-            binding.dogProfileLBLWeight.text = "Weight\n${dog.weight}kg"
-
-            // Set birthday
-            val birthDate = SimpleDateFormat("MMM dd", Locale.getDefault()).format(Date(dog.birthDate))
-            binding.dogProfileLBLBirthday.text = "Birthday\n$birthDate"
-
-            // Add personality tags
             setupPersonalityTags(dog.tags)
-
-            Log.d("DogProfileFragment", "Successfully bound data for dog: ${dog.name}")
         } catch (e: Exception) {
-            Log.e("DogProfileFragment", "Error binding dog data: ${e.message}")
             Toast.makeText(requireContext(), "Error loading dog profile", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun calculateAge(birthDateMillis: Long): Int {
-        val birthDate = Calendar.getInstance().apply { timeInMillis = birthDateMillis }
+        val birth = Calendar.getInstance().apply { timeInMillis = birthDateMillis }
         val today = Calendar.getInstance()
-
-        var age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
-
-        if (today.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) {
-            age--
-        }
-
+        var age = today.get(Calendar.YEAR) - birth.get(Calendar.YEAR)
+        if (today.get(Calendar.DAY_OF_YEAR) < birth.get(Calendar.DAY_OF_YEAR)) age--
         return maxOf(age, 0)
     }
 
     private fun setupPersonalityTags(tags: List<String>) {
-        val chipGroup = binding.dogProfileCHIPSTags
-        chipGroup.removeAllViews()
-
+        val group = binding.profileChipTags
+        group.removeAllViews()
         for (tag in tags) {
             val chip = Chip(requireContext()).apply {
                 text = tag
@@ -137,12 +119,12 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
                 setChipBackgroundColorResource(R.color.bg_grey)
                 setTextColor(resources.getColor(R.color.black, null))
             }
-            chipGroup.addView(chip)
+            group.addView(chip)
         }
     }
 
     private fun setupActivityCards() {
-        val activityCards = listOf(
+        val activities = listOf(
             DogActivityCard("Notes", R.drawable.ic_notes, R.color.Secondary_pink, R.color.Primary_pink),
             DogActivityCard("Food", R.drawable.ic_food, R.color.Secondary_green, R.color.lima_700),
             DogActivityCard("Walks", R.drawable.ic_weight, R.color.Secondary_blue, R.color.malibu_600),
@@ -151,57 +133,25 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
             DogActivityCard("Training", R.drawable.ic_training, R.color.purple_100, R.color.purple_600)
         )
 
-        activitiesAdapter = ActivitiesAdapter(activityCards) { card ->
-            handleActivityCardClick(card)
-        }
-
-        binding.dogProfileRECYCLERActivities.apply {
-            // Use GridLayoutManager with 3 columns instead of LinearLayoutManager
-            layoutManager = GridLayoutManager(requireContext(), 3)
-            adapter = activitiesAdapter
-        }
+        activitiesAdapter = ActivitiesAdapter(activities) { card -> handleActivityCardClick(card) }
+        binding.profileRecyclerActivities.layoutManager = GridLayoutManager(requireContext(), 3)
+        binding.profileRecyclerActivities.adapter = activitiesAdapter
     }
 
     private fun handleActivityCardClick(card: DogActivityCard) {
-        // Verify we have a selected dog before navigating
-        val selectedDog = sharedViewModel.selectedDog.value
-        val selectedDogId = sharedViewModel.selectedDogId.value
+        val dog = sharedViewModel.selectedDog.value ?: return
+        val dogId = sharedViewModel.selectedDogId.value ?: return
 
-        if (selectedDog == null || selectedDogId == null) {
-            Toast.makeText(requireContext(), "No dog selected", Toast.LENGTH_SHORT).show()
-            Log.w("DogProfileFragment", "Attempted to navigate with no selected dog")
-            return
-        }
-
-        Log.d("DogProfileFragment", "Navigating to ${card.title} for dog: ${selectedDog.name}")
-
-        try {
-            when (card.title) {
-                "Notes" -> {
-                    Log.d("DogProfileFragment", "Navigating to Notes fragment")
-                    findNavController().navigate(R.id.action_dogProfileFragment_to_dogNotesFragment)
-                }
-                "Walks" -> {
-                    Log.d("DogProfileFragment", "Navigating to Walks fragment")
-                    findNavController().navigate(R.id.action_dogProfileFragment_to_dogWalksFragment)
-                }
-                "Poop" -> {
-                    Log.d("DogProfileFragment", "Navigating to Poop fragment")
-                    findNavController().navigate(R.id.action_dogProfileFragment_to_dogPoopFragment)
-                }
-                else -> {
-                    Toast.makeText(requireContext(), "Feature coming soon: ${card.title}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("DogProfileFragment", "Navigation error: ${e.message}")
-            Toast.makeText(requireContext(), "Navigation error", Toast.LENGTH_SHORT).show()
+        when (card.title) {
+            "Notes" -> findNavController().navigate(R.id.action_dogProfileFragment_to_dogNotesFragment)
+            "Walks" -> findNavController().navigate(R.id.action_dogProfileFragment_to_dogWalksFragment)
+            "Poop"  -> findNavController().navigate(R.id.action_dogProfileFragment_to_dogPoopFragment)
+            else    -> Toast.makeText(requireContext(), "Feature coming soon: ${card.title}", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("DogProfileFragment", "Fragment view destroyed")
         _binding = null
     }
 }

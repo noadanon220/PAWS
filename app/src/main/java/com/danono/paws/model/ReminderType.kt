@@ -1,6 +1,5 @@
 package com.danono.paws.model
 
-
 enum class ReminderType(val displayName: String, val emoji: String) {
     VET_APPOINTMENT("Vet Appointment", "💉"),
     VACCINATION("Vaccination", "💉"),
@@ -21,4 +20,3 @@ enum class ReminderType(val displayName: String, val emoji: String) {
         }
     }
 }
-

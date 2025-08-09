@@ -51,7 +51,7 @@
                 app:strokeWidth="@dimen/AddDog_img_stroke_4dp">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/itemDog_IMG_dogImage"
+                    android:id="@+id/profile_img_avatar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/margin_l"

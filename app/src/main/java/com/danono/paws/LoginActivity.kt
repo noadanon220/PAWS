@@ -45,10 +45,10 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // Optional: go to registration screen
+        // Navigate to the registration screen when the user taps the Register link
         findViewById<android.widget.TextView>(R.id.login_txt_register).setOnClickListener {
-            Toast.makeText(this, "Registration screen coming soon", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, RegisterActivity::class.java))
+            // Launch the registration activity
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 

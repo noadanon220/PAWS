@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import com.danono.paws.R
 import com.danono.paws.databinding.FragmentSettingsBinding
 import com.google.firebase.auth.FirebaseAuth
+import android.content.Intent
 
 class SettingsFragment : Fragment() {
 
@@ -48,30 +49,22 @@ class SettingsFragment : Fragment() {
             // Navigate to personal info screen
         }
 
-        // Language
-        binding.languageLayout.setOnClickListener {
-            // Navigate to language selection
-        }
-
-        // Notifications
-        binding.notificationLayout.setOnClickListener {
-            // Navigate to notification settings
-        }
-
-        // Dark Mode Toggle
-        binding.darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            // Handle dark mode toggle
-            // You can save this preference and apply theme
-        }
-
-        // Help
-        binding.helpLayout.setOnClickListener {
-            // Navigate to help screen
-        }
 
         // Back button
         binding.backButton.setOnClickListener {
             findNavController().navigateUp()
+        }
+
+        // Logout
+        // Add a click listener to the logout row. When the user taps this option we
+        // sign out from FirebaseAuth and return to the login screen. We also clear
+        // the back stack so the user cannot navigate back into the app after
+        // logging out.
+        binding.logoutLayout.setOnClickListener {
+            auth.signOut()
+            val intent = Intent(requireContext(), com.danono.paws.LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
     }
 
