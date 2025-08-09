@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="@color/bg_light">
 
-    <!-- Header ללא הכפתור -->
     <LinearLayout
         android:id="@+id/reminders_LAY_header"
         android:layout_width="match_parent"
@@ -30,7 +29,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- תוכן מתגלגל -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/reminders_scroll"
         android:layout_width="match_parent"
@@ -46,7 +44,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- כותרת הסקשן: ניווט חודשים + קלנדר -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -102,7 +99,6 @@
                     app:cv_dayViewResource="@layout/calendar_day_layout" />
             </LinearLayout>
 
-            <!-- מידע על התאריך הנבחר -->
             <LinearLayout
                 android:id="@+id/selectedDateLayout"
                 android:layout_width="match_parent"
@@ -132,7 +128,6 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- רשימת התזכורות -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/remindersRecyclerView"
                 android:layout_width="match_parent"
@@ -142,7 +137,6 @@
                 android:overScrollMode="never"
                 android:paddingBottom="120dp" />
 
-            <!-- מצב ריק -->
             <LinearLayout
                 android:id="@+id/emptyStateLayout"
                 android:layout_width="match_parent"
