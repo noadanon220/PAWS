@@ -11,9 +11,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header -->
         <LinearLayout
-            android:id="@+id/home_LAY_header"
+            android:id="@+id/settings_LAY_header"
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:background="@color/white"
@@ -23,40 +22,16 @@
             android:paddingEnd="16dp"
             android:paddingTop="28dp"
             android:paddingBottom="12dp"
-            android:gravity="bottom"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:gravity="bottom">
 
-            <!-- Back Button and Title -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/settings_TXT_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/backButton"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Back"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_arrow_left"
-                    app:tint="@color/Primary_pink" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:text="Settings"
-                    android:textColor="@color/black"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
+                android:text="@string/settings_title"
+                android:textColor="@color/Primary_pink"
+                android:textSize="24sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <!-- Account Section -->
@@ -92,12 +67,14 @@
                 android:padding="12dp">
 
                 <ImageView
+                    android:id="@+id/settings_img_avatar"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@drawable/bg_circle_light_pink"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_person"
-                    app:tint="@color/Primary_pink" />
+                    android:padding="0dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/user_default_img" />
+
 
                 <LinearLayout
                     android:layout_width="0dp"

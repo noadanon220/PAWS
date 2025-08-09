@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Custom view for editing user profile (display name + avatar) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/edit_profile_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Avatar preview -->
+    <ImageView
+        android:id="@+id/edit_img_avatar"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_circle_light_pink"
+        android:scaleType="centerCrop"
+        android:src="@drawable/user_default_img" />
+
+    <!-- Change photo button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/edit_btn_change_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:text="@string/change_photo"
+        android:textAllCaps="false"
+        app:cornerRadius="50dp" />
+
+    <!-- Display name -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/edit_til_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_edt_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/display_name" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>
