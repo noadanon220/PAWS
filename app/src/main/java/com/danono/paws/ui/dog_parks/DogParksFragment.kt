@@ -138,8 +138,6 @@ class DogParksFragment : Fragment(R.layout.fragment_dog_parks), OnMapReadyCallba
         binding.locationButton.setOnClickListener {
             if (hasLocationPermission()) getCurrentLocation() else requestLocationPermission()
         }
-
-
     }
 
     private fun observeViewModel() {
