@@ -141,7 +141,11 @@
     <string name="default_favorite_name">My Favorite Park</string>
     <string name="coords_fmt">Selected location: %1$s</string>
     <string name="long_press_tip">Tip: long-press on the map to choose a custom spot</string>
-
+    <string name="poop_log">Poop Log</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="you_example_com">you@example.com</string>
+    <string name="create_a_new_account">Create a new account</string>
+    <string name="_1">1</string>
 
 
 </resources>

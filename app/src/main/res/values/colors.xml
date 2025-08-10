@@ -89,5 +89,6 @@
 
 
     <color name="blue_600">#2196F3</color>
+    <color name="bg_white">#F9F9F9</color>
 
 </resources>
