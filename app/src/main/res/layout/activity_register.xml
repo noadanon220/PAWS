@@ -23,7 +23,7 @@
         android:layout_marginBottom="@dimen/margin_l"
         android:text="Create a new account"
         android:textColor="#000000"
-        android:textSize="16sp" />
+        android:textSize="@dimen/text_size_body" />
 
     <!-- Email Label -->
     <TextView
@@ -32,13 +32,13 @@
         android:layout_marginBottom="4dp"
         android:text="Email"
         android:textColor="@color/black"
-        android:textSize="16sp" />
+        android:textSize="@dimen/text_size_body" />
 
     <!-- Email Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/margin_l"
         app:boxBackgroundColor="@color/white"
         app:boxBackgroundMode="outline"
         app:boxCornerRadiusBottomEnd="12dp"
@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:hint="you@example.com"
             android:inputType="textEmailAddress"
-            android:padding="12dp" />
+            android:padding="@dimen/margin_m" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Password Label -->
@@ -62,7 +62,7 @@
         android:layout_marginBottom="4dp"
         android:text="Password"
         android:textColor="@color/black"
-        android:textSize="16sp" />
+        android:textSize="@dimen/text_size_body" />
 
     <!-- Password Field -->
     <com.google.android.material.textfield.TextInputLayout
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:hint="Password"
             android:inputType="textPassword"
-            android:padding="12dp" />
+            android:padding="@dimen/margin_m" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Register Button -->
@@ -90,15 +90,15 @@
         android:id="@+id/register_BTN_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="14dp"
+        android:paddingVertical="@dimen/padding_14"
         android:text="Register"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_body"
         android:textStyle="bold"
         app:backgroundTint="@color/Primary_yellow"
         app:cornerRadius="50dp" />
 
-    <!-- Already have an account? Link back to login (optional) -->
+    <!-- Already have an account? Link back to login -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

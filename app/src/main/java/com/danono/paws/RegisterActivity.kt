@@ -47,7 +47,6 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        // Optional: back to login
         findViewById<android.widget.TextView>(R.id.register_txt_login).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()

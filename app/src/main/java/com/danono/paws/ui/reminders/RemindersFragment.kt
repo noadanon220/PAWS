@@ -40,13 +40,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
-/**
- * Reminders screen with:
- * - Header (month navigation)
- * - Calendar (kizitonwose)
- * - Filtered list for the selected day (only)
- * - Add/Edit/Delete dialogs saving into users/{uid}/reminders
- */
+
 class RemindersFragment : Fragment() {
 
     private var _binding: FragmentRemindersBinding? = null

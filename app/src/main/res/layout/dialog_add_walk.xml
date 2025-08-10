@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/padding_l">
 
     <!-- Walk Name Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/margin_l"
         android:hint="Walk Name"
         app:boxBackgroundMode="outline"
         app:boxBackgroundColor="@color/bg_light_grey"
@@ -36,7 +36,7 @@
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="@dimen/margin_s" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/timePickerButton"
@@ -45,9 +45,9 @@
         android:layout_height="wrap_content"
         android:text="08:00"
         android:textColor="@color/black"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_body"
         android:gravity="center"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/margin_l"
         app:strokeColor="@color/Primary_pink"
         app:strokeWidth="2dp"
         app:cornerRadius="12dp" />
@@ -60,14 +60,14 @@
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="@dimen/margin_s" />
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/recurrenceChipGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:singleSelection="true"
-        app:chipSpacing="8dp">
+        app:chipSpacing="@dimen/margin_s">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipDaily"

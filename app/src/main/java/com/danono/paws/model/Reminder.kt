@@ -9,7 +9,7 @@ data class Reminder(
     val notes: String = "",
     val dogId: String = "",
     val dogName: String = "",
-    val location: String = "", // optional field, safe default
+    val location: String = "",
     val isCompleted: Boolean = false,
     val createdAt: Long = 0L
 )

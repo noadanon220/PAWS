@@ -16,8 +16,8 @@
         android:background="@color/white"
         android:elevation="4dp"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="@dimen/padding_l"
+        android:paddingEnd="@dimen/padding_l"
         android:paddingTop="28dp"
         android:paddingBottom="12dp"
         android:gravity="bottom"
@@ -70,7 +70,7 @@
                 android:id="@+id/home_TXT_your_dogs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/margin_l"
                 android:layout_marginTop="24dp"
                 android:text="@string/HOME_your_dogs"
                 android:textColor="@color/black"
@@ -82,7 +82,7 @@
                 android:id="@+id/home_RV_dogs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/margin_l"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:clipToPadding="false"
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="@dimen/margin_l"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 app:strokeColor="@color/bg_grey"
@@ -107,7 +107,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/padding_l">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -160,9 +160,9 @@
                 android:id="@+id/home_card_upcoming_reminders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="@dimen/margin_l"
+                android:layout_marginTop="@dimen/margin_l"
+                android:layout_marginEnd="@dimen/margin_l"
                 android:layout_marginBottom="24dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
@@ -173,7 +173,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/padding_l">
 
                     <LinearLayout
                         android:layout_width="match_parent"

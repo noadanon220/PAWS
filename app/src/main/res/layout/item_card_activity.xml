@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="12dp"
+    android:padding="@dimen/margin_m"
     android:clickable="true"
     android:focusable="true"
     android:background="?android:attr/selectableItemBackground">

@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="@dimen/padding_l">
 
         <!-- Color Indicator (small circular pill) -->
         <View
@@ -65,7 +65,6 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Optional image (now circular with pink stroke, same ID as before) -->
         <ImageView
             android:id="@+id/poopImage"
             android:layout_width="80dp"

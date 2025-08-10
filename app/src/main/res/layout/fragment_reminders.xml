@@ -13,8 +13,8 @@
         android:background="@color/white"
         android:elevation="4dp"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="@dimen/padding_l"
+        android:paddingEnd="@dimen/padding_l"
         android:paddingTop="28dp"
         android:paddingBottom="12dp"
         android:gravity="bottom">
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@color/white"
-                android:padding="16dp"
+                android:padding="@dimen/padding_l"
                 android:elevation="4dp">
 
                 <LinearLayout
@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="@dimen/margin_l">
 
                     <ImageView
                         android:id="@+id/previousMonthButton"
@@ -95,7 +95,7 @@
                     android:id="@+id/calendarView"
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="@dimen/margin_l"
                     app:cv_dayViewResource="@layout/calendar_day_layout" />
             </LinearLayout>
 
@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="16dp"
+                android:padding="@dimen/padding_l"
                 android:background="@color/Secondary_pink"
                 android:visibility="gone">
 
@@ -150,7 +150,7 @@
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:src="@drawable/calendar_ic"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="@dimen/margin_l"
                     app:tint="@color/gray_dark" />
 
                 <TextView
@@ -180,7 +180,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="@dimen/margin_l"
         android:layout_marginBottom="24dp"
         android:contentDescription="@string/desc_add_reminder"
         app:srcCompat="@drawable/round_add_24"

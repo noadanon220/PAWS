@@ -112,7 +112,7 @@
 
 
         <!-- Dog Parks header/search -->
-        <string name="HOME_nearby_dog_parks">Nearby Dog Parks</string>
+        <string name="HOME_nearby_dog_parks">Dog Parks</string>
         <string name="search_dog_parks">Search for dog parks</string>
         <string name="get_location">Get my location</string>
 
