@@ -1,6 +1,7 @@
 <p align="center">
-  <img src="assets/paws_logo.png" alt="Paws Logo" width="200"/>
+  <img src="https://raw.githubusercontent.com/noadanon220/PAWS/main/paws_logo.png" width="200" alt="PAWS Logo"/>
 </p>
+
 
 # 🐾 PAWS – Your Dog Care Companion
 
