@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/paws_logo.png" alt="Paws Logo" width="200"/>
+</p>
+
 # 🐾 PAWS – Your Dog Care Companion
 
 [![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com)  
