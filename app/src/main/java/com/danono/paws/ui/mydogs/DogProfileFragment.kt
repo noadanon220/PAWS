@@ -14,7 +14,9 @@ import com.danono.paws.databinding.FragmentDogProfileBinding
 import com.danono.paws.model.Dog
 import com.danono.paws.model.DogActivityCard
 import com.danono.paws.utilities.ImageLoader
+import com.danono.paws.utilities.FirebaseDataManager
 import com.google.android.material.chip.Chip
+import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,6 +27,8 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
 
     private lateinit var activitiesAdapter: ActivitiesAdapter
     private lateinit var sharedViewModel: SharedDogsViewModel
+
+    private var weightListener: ListenerRegistration? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,7 +52,6 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
         Log.d("DogProfileFragment", "Fragment created and observing selected dog")
 
         binding.profileRecyclerActivities.isNestedScrollingEnabled = false
-
     }
 
     override fun onResume() {
@@ -61,13 +64,19 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
         } else {
             findNavController().navigateUp()
         }
+
+        // ensure listener is attached when coming back to the screen
+        selectedDogId?.let { startLatestWeightListener(it) }
     }
 
     private fun observeSelectedDog() {
         sharedViewModel.selectedDog.observe(viewLifecycleOwner) { dog ->
             dog?.let { bindDogData(it) }
         }
-        sharedViewModel.selectedDogId.observe(viewLifecycleOwner) { /* no-op */ }
+        // when dogId is available/changes, start the realtime listener for latest weight
+        sharedViewModel.selectedDogId.observe(viewLifecycleOwner) { dogId ->
+            dogId?.let { startLatestWeightListener(it) }
+        }
     }
 
     private fun bindDogData(dog: Dog) {
@@ -98,6 +107,23 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Error loading dog profile", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun startLatestWeightListener(dogId: String) {
+        // remove existing listener to avoid duplicates
+        weightListener?.remove()
+        weightListener = FirebaseDataManager
+            .getInstance()
+            .addWeightsListener(dogId) { weights ->
+                val latest = weights.firstOrNull()
+                val value = latest?.weight?.let { String.format(Locale.getDefault(), "%.1f kg", it) }
+                    ?: run {
+                        val w = sharedViewModel.selectedDog.value?.weight
+                        if (w != null && w > 0) String.format(Locale.getDefault(), "%.1f kg", w.toDouble())
+                        else "No weight yet"
+                    }
+                binding.profileValueWeight.text = value
+            }
     }
 
     private fun calculateAge(birthDateMillis: Long): Int {
@@ -143,12 +169,16 @@ class DogProfileFragment : Fragment(R.layout.fragment_dog_profile) {
         when (card.title) {
             "Notes" -> findNavController().navigate(R.id.action_dogProfileFragment_to_dogNotesFragment)
             "Walks" -> findNavController().navigate(R.id.action_dogProfileFragment_to_dogWalksFragment)
+            "Weight" -> findNavController().navigate(R.id.action_dogProfileFragment_to_dogWeightFragment)
             "Poop"  -> findNavController().navigate(R.id.action_dogProfileFragment_to_dogPoopFragment)
             else    -> Toast.makeText(requireContext(), "Feature coming soon: ${card.title}", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onDestroyView() {
+        // cleanup listener to avoid leaks
+        weightListener?.remove()
+        weightListener = null
         super.onDestroyView()
         _binding = null
     }

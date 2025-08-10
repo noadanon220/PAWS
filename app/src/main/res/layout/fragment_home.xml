@@ -120,7 +120,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/home_nearby_dog_parks"
+                            android:text="@string/home_dog_parks"
                             android:textColor="@color/black"
                             android:textSize="18sp"
                             android:textStyle="bold" />
@@ -129,7 +129,7 @@
                             android:id="@+id/home_btn_view_all_parks"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/home_view_all"
+                            android:text="@string/go_to_map"
                             android:textColor="@color/Primary_pink"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -150,7 +150,7 @@
                             android:layout_height="match_parent"
                             android:contentDescription="@string/home_map_preview"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/ic_google" />
+                            android:src="@drawable/map_placeholder" />
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -195,10 +195,10 @@
                             android:id="@+id/home_fab_add_reminder"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:contentDescription="@string/desc_add_reminder"
+                            android:contentDescription="Add reminder"
                             app:backgroundTint="@color/Primary_yellow"
                             app:fabSize="mini"
-                            app:maxImageSize="24dp"
+                            app:maxImageSize="32dp"
                             app:srcCompat="@drawable/round_add_24"
                             app:tint="@color/black" />
                     </LinearLayout>
