@@ -56,7 +56,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
-
     <string name="back">Back</string>
     <string name="add_dog">Add dog</string>
 
@@ -87,17 +86,14 @@
     <string name="you_can_always_update_your_profile_later">You can always update your profile later</string>
 
 
-
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="change_photo">Change photo</string>
     <string name="display_name">Display name</string>
 
 
-    <!-- Settings / Edit profile dialog -->
 
-    <string name="save">Save</string>
-    <string name="cancel">Cancel</string>
+
 
 
     <string name="choose_image_source">Choose image source</string>
@@ -109,6 +105,43 @@
 
     <string name="logout">Logout</string>
     <string name="dog_profile_title">Dog Profile</string>
+    <string name="title_activity_maps">MapsActivity</string>
+
+    <string name="add_favorite_park">Add Favorite Park</string>
+
+
+
+        <!-- Dog Parks header/search -->
+        <string name="HOME_nearby_dog_parks">Nearby Dog Parks</string>
+        <string name="search_dog_parks">Search for dog parks</string>
+        <string name="get_location">Get my location</string>
+
+        <!-- Bottom bar + states -->
+        <string name="set_favorite_park">Set Favorite Park</string>
+        <string name="pick_favorite_hint">Pick a marker or long-press anywhere to choose your favorite spot</string>
+        <string name="selected_park_hint">Selected: %1$s</string>
+        <string name="custom_selected_hint">Selected a custom location</string>
+        <string name="pick_location_first">Pick a park or long-press on the map first</string>
+        <string name="favorite_saved">Favorite park saved</string>
+        <string name="custom_point">Custom point</string>
+        <string name="confirm_favorite_msg">Set “%1$s” as your favorite park?</string>
+
+        <!-- Permission dialog -->
+        <string name="location_permission_title">Location Permission</string>
+        <string name="location_permission_msg">To center the map and find parks near you we need access to your location. You can still browse sample parks without it.</string>
+        <string name="grant_permission">Grant Permission</string>
+        <string name="browse_anyway">Browse anyway</string>
+
+        <!-- Common -->
+        <string name="save">Save</string>
+        <string name="cancel">Cancel</string>
+
+
+    <string name="favorite_name_hint">Favorite park name</string>
+    <string name="default_favorite_name">My Favorite Park</string>
+    <string name="coords_fmt">Selected location: %1$s</string>
+    <string name="long_press_tip">Tip: long-press on the map to choose a custom spot</string>
+
 
 
 </resources>
