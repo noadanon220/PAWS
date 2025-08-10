@@ -202,6 +202,72 @@ class FirebaseDataManager private constructor() {
         }
     }
 
+    // -------------------- WEIGHTS --------------------
+
+    suspend fun addWeight(dogId: String, weight: DogWeight): Result<Unit> {
+        return try {
+            val weightsCollection = getDogSubCollection(dogId, "weights")
+                ?: return Result.failure(Exception("User not logged in"))
+            weightsCollection.document(weight.id).set(weight).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getWeights(dogId: String): Result<List<DogWeight>> {
+        return try {
+            val weightsCollection = getDogSubCollection(dogId, "weights")
+                ?: return Result.failure(Exception("User not logged in"))
+            val snapshot = weightsCollection
+                .orderBy("lastModified", Query.Direction.DESCENDING)
+                .get()
+                .await()
+            Result.success(snapshot.toObjects(DogWeight::class.java))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun updateWeight(dogId: String, weight: DogWeight): Result<Unit> {
+        return try {
+            val weightsCollection = getDogSubCollection(dogId, "weights")
+                ?: return Result.failure(Exception("User not logged in"))
+            weightsCollection.document(weight.id).set(weight).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteWeight(dogId: String, weightId: String): Result<Unit> {
+        return try {
+            val weightsCollection = getDogSubCollection(dogId, "weights")
+                ?: return Result.failure(Exception("User not logged in"))
+            weightsCollection.document(weightId).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun addWeightsListener(
+        dogId: String,
+        onUpdate: (List<DogWeight>) -> Unit
+    ): ListenerRegistration? {
+        return getDogSubCollection(dogId, "weights")
+            ?.orderBy("lastModified", Query.Direction.DESCENDING)
+            ?.addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    android.util.Log.e("FirebaseDataManager", "Weights listener error", error)
+                    return@addSnapshotListener
+                }
+                val list = snapshot?.toObjects(DogWeight::class.java).orEmpty()
+                onUpdate(list)
+            }
+    }
+
+
     // -------------------- REMINDERS (root: users/{uid}/reminders) --------------------
 
     suspend fun getUpcomingReminders(limit: Int = 5): Result<List<Reminder>> {
@@ -377,7 +443,7 @@ class FirebaseDataManager private constructor() {
     // -------------------- INTERNAL UTILS --------------------
 
     private suspend fun deleteAllSubcollections(dogRef: DocumentReference) {
-        val subcollections = listOf("notes", "poop", "reminders", "walks")
+        val subcollections = listOf("notes", "poop", "weights", "reminders", "walks")
         for (collection in subcollections) {
             try {
                 val snapshot = dogRef.collection(collection).get().await()
