@@ -118,7 +118,7 @@ class DogWalksFragment : Fragment(R.layout.fragment_dog_walks) {
             }
         }
 
-        // Text click listeners (optional - keep if you want text to also be clickable)
+        // Text click listeners
         binding.morningTimeText.setOnClickListener {
             showTimePickerDialog(morningTime) { newTime ->
                 morningTime = newTime

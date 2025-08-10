@@ -16,8 +16,8 @@
         android:background="@color/white"
         android:elevation="4dp"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="@dimen/padding_l"
+        android:paddingEnd="@dimen/padding_l"
         android:paddingTop="28dp"
         android:paddingBottom="12dp"
         android:gravity="bottom"
@@ -34,8 +34,8 @@
 
             <ImageView
                 android:id="@+id/backButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="@dimen/width_32"
+                android:layout_height="@dimen/width_32"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/back"
                 android:padding="8dp"
@@ -70,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="@dimen/padding_l">
 
             <!-- Header image with camera button -->
             <com.google.android.material.card.MaterialCardView
@@ -111,7 +111,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingTop="16dp"
+                android:paddingTop="@dimen/padding_l"
                 android:paddingBottom="8dp">
 
                 <TextView
@@ -429,7 +429,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/margin_l"
                 android:text="Tags"
                 android:textColor="@color/black"
                 android:textSize="18sp"
@@ -458,7 +458,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="@dimen/margin_m">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -466,7 +466,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="Activities"
                         android:textColor="@color/black"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/text_size_body"
                         android:textStyle="bold" />
 
                     <androidx.recyclerview.widget.RecyclerView

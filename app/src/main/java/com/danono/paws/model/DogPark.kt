@@ -8,7 +8,7 @@ data class DogPark(
     val longitude: Double = 0.0,
     val rating: Float = 0f,
     val description: String = "",
-    val facilities: List<String> = emptyList(), // e.g., "Water fountain", "Fenced area", "Parking"
+    val facilities: List<String> = emptyList(), //  "Water fountain", "Fenced area", "Parking"
     val openingHours: String = "",
     val phoneNumber: String = "",
     val website: String = "",

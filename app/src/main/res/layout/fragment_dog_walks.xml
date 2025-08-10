@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:background="@color/bg_light"
-    android:padding="16dp">
+    android:padding="@dimen/padding_l">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="@dimen/margin_l"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -80,7 +80,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="@dimen/margin_l"
                     android:text="Fixed Walk Times"
                     android:textColor="@color/black"
                     android:textSize="24sp"
@@ -108,7 +108,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:layout_marginEnd="16dp"
+                            android:layout_marginEnd="@dimen/margin_l"
                             android:src="@drawable/ic_morning" />
 
                         <TextView
@@ -117,7 +117,7 @@
                             android:layout_weight="1"
                             android:text="Morning"
                             android:textColor="@color/gray_dark"
-                            android:textSize="16sp" />
+                            android:textSize="@dimen/text_size_body" />
 
                         <TextView
                             android:id="@+id/morningTimeText"
@@ -126,7 +126,7 @@
                             android:layout_marginEnd="12dp"
                             android:text="07:00"
                             android:textColor="@color/black"
-                            android:textSize="16sp" />
+                            android:textSize="@dimen/text_size_body" />
 
                         <ImageView
                             android:layout_width="20dp"
@@ -164,7 +164,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:layout_marginEnd="16dp"
+                            android:layout_marginEnd="@dimen/margin_l"
                             android:src="@drawable/ic_afternoon" />
 
                         <TextView
@@ -173,7 +173,7 @@
                             android:layout_weight="1"
                             android:text="Afternoon"
                             android:textColor="@color/gray_dark"
-                            android:textSize="16sp" />
+                            android:textSize="@dimen/text_size_body" />
 
                         <TextView
                             android:id="@+id/afternoonTimeText"
@@ -182,7 +182,7 @@
                             android:layout_marginEnd="12dp"
                             android:text="13:00"
                             android:textColor="@color/black"
-                            android:textSize="16sp" />
+                            android:textSize="@dimen/text_size_body" />
 
                         <ImageView
                             android:layout_width="20dp"
@@ -220,7 +220,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:layout_marginEnd="16dp"
+                            android:layout_marginEnd="@dimen/margin_l"
                             android:src="@drawable/ic_evening" />
 
                         <TextView
@@ -229,7 +229,7 @@
                             android:layout_weight="1"
                             android:text="Evening"
                             android:textColor="@color/gray_dark"
-                            android:textSize="16sp" />
+                            android:textSize="@dimen/text_size_body" />
 
                         <TextView
                             android:id="@+id/eveningTimeText"
@@ -238,7 +238,7 @@
                             android:layout_marginEnd="12dp"
                             android:text="19:00"
                             android:textColor="@color/black"
-                            android:textSize="16sp" />
+                            android:textSize="@dimen/text_size_body" />
 
                         <ImageView
                             android:layout_width="20dp"
@@ -268,7 +268,7 @@
                     android:id="@+id/selectedDateText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="@dimen/margin_l"
                     android:text="Daily Walk Log"
                     android:textColor="@color/black"
                     android:textSize="24sp"
@@ -310,7 +310,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Morning Walk"
                                 android:textColor="@color/black"
-                                android:textSize="16sp"
+                                android:textSize="@dimen/text_size_body"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -370,7 +370,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Afternoon Walk"
                                 android:textColor="@color/black"
-                                android:textSize="16sp"
+                                android:textSize="@dimen/text_size_body"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -429,7 +429,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Evening Walk"
                                 android:textColor="@color/black"
-                                android:textSize="16sp"
+                                android:textSize="@dimen/text_size_body"
                                 android:textStyle="bold" />
 
                             <TextView

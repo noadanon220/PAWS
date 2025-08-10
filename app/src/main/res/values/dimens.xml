@@ -24,6 +24,7 @@
     <!-- Button dimensions -->
     <dimen name="button_height">48dp</dimen>
     <dimen name="button_corner_radius">12dp</dimen>
+    <dimen name="button_icon_round">50dp</dimen>
 
     <!-- Padding -->
     <dimen name="padding_xs">4dp</dimen>
@@ -53,5 +54,16 @@
     <dimen name="stroke_m">4dp</dimen>
     <dimen name="stroke_l">8dp</dimen>
     <dimen name="stroke_xl">16dp</dimen>
+    <dimen name="_48dp">48dp</dimen>
+    <dimen name="padding_14">14dp</dimen>
+    <dimen name="margin_80">80dp</dimen>
+    <dimen name="elevation_4">4dp</dimen>
+    <dimen name="height_180">180dp</dimen>
+    <dimen name="_0dp">0dp</dimen>
+    <dimen name="text_24">24sp</dimen>
+    <dimen name="height_48">48dp</dimen>
+    <dimen name="width_0">0dp</dimen>
+    <dimen name="elevation_8">8dp</dimen>
+    <dimen name="width_32">32dp</dimen>
 </resources>
 

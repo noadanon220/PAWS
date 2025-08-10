@@ -19,8 +19,8 @@
             android:background="@color/white"
             android:elevation="4dp"
             android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:paddingStart="@dimen/padding_l"
+            android:paddingEnd="@dimen/padding_l"
             android:paddingTop="28dp"
             android:paddingBottom="12dp"
             android:gravity="bottom">
@@ -39,17 +39,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_margin="@dimen/margin_l"
             android:paddingTop="@dimen/padding_l"
             android:background="@drawable/bg_card_rounded"
             android:orientation="vertical"
             android:elevation="@dimen/cardview_default_elevation"
-            android:padding="16dp">
+            android:padding="@dimen/padding_l">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="@dimen/margin_l"
                 android:text="Account"
                 android:textColor="@color/black"
                 android:textSize="18sp"
@@ -66,7 +66,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="12dp">
+                android:padding="@dimen/margin_m">
 
                 <!-- Avatar container (round card like in setup) -->
                 <com.google.android.material.card.MaterialCardView
@@ -92,7 +92,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="@dimen/margin_l"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -102,7 +102,7 @@
                         android:layout_height="wrap_content"
                         android:text="User"
                         android:textColor="@color/black"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/text_size_body"
                         android:textStyle="bold" />
 
                     <TextView
@@ -139,7 +139,7 @@
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="12dp">
+                android:padding="@dimen/margin_m">
 
                 <ImageView
                     android:layout_width="56dp"
@@ -152,7 +152,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="@dimen/margin_l"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -161,7 +161,7 @@
                         android:layout_height="wrap_content"
                         android:text="Logout"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/text_size_body" />
                 </LinearLayout>
 
                 <ImageView

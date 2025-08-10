@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/padding_l">
 
         <!-- Top Row: Walk Info + Actions -->
         <LinearLayout
@@ -47,7 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Morning Walk"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/text_size_body"
                     android:textStyle="bold"
                     android:textColor="@color/black" />
 

@@ -13,7 +13,7 @@
         android:layout_width="140dp"
         android:layout_height="140dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="@dimen/margin_l">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/poop_CARD_image"
@@ -28,12 +28,13 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/poopImagePreview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
                 android:contentDescription="@string/edit_profile_image"
-                android:scaleType="centerCrop"
-                app:tint="@color/gray_dark"
-                android:src="@drawable/ic_poop" />
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_poop"
+                app:tint="@color/gray_dark" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -56,7 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Poop Color"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/margin_l"
         app:boxBackgroundMode="outline"
         app:boxBackgroundColor="@color/white"
         app:boxCornerRadiusTopStart="12dp"
@@ -72,7 +73,7 @@
             android:inputType="none"
             android:focusable="false"
             android:clickable="true"
-            android:padding="12dp" />
+            android:padding="@dimen/margin_m" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Consistency -->
@@ -81,7 +82,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Consistency"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/margin_l"
         app:boxBackgroundMode="outline"
         app:boxBackgroundColor="@color/white"
         app:boxCornerRadiusTopStart="12dp"
@@ -97,7 +98,7 @@
             android:inputType="none"
             android:focusable="false"
             android:clickable="true"
-            android:padding="12dp" />
+            android:padding="@dimen/margin_m" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Notes -->
@@ -106,7 +107,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Notes (Optional)"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/margin_s"
         app:boxBackgroundMode="outline"
         app:boxBackgroundColor="@color/white"
         app:boxCornerRadiusTopStart="12dp"
@@ -121,7 +122,7 @@
             android:gravity="top|start"
             android:inputType="textMultiLine|textCapSentences"
             android:maxLines="5"
-            android:padding="12dp" />
+            android:padding="@dimen/margin_m" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

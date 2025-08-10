@@ -38,7 +38,7 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:text="30"
-            android:textSize="16sp"
+            android:textSize="@dimen/text_size_body"
             android:textStyle="bold"
             android:textColor="@color/black" />
 

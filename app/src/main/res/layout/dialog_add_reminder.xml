@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/padding_l">
 
         <!-- Selected date "pill" (click to change) -->
         <com.google.android.material.button.MaterialButton
@@ -24,13 +24,13 @@
             app:cornerRadius="20dp"
             app:strokeWidth="2dp"
             app:strokeColor="@color/Primary_pink"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="@dimen/margin_l" />
 
         <!-- Reminder Type (replaces title) -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/margin_l"
             android:hint="Reminder type"
             app:boxBackgroundMode="outline"
             app:boxBackgroundColor="@color/bg_light_grey"
@@ -53,7 +53,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/margin_l"
             android:hint="Select dog"
             app:boxBackgroundMode="outline"
             app:boxBackgroundColor="@color/bg_light_grey"
@@ -83,16 +83,16 @@
             app:strokeColor="@color/Primary_pink"
             app:strokeWidth="2dp"
             app:cornerRadius="12dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="@dimen/margin_l" />
 
-        <!-- Location (optional) -->
+        <!-- Location -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Location (optional)"
             app:boxBackgroundMode="outline"
             app:boxBackgroundColor="@color/bg_light_grey"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/margin_l"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"

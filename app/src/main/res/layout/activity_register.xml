@@ -21,9 +21,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_l"
-        android:text="Create a new account"
-        android:textColor="#000000"
-        android:textSize="16sp" />
+        android:text="@string/create_a_new_account"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_body" />
 
     <!-- Email Label -->
     <TextView
@@ -32,27 +32,27 @@
         android:layout_marginBottom="4dp"
         android:text="Email"
         android:textColor="@color/black"
-        android:textSize="16sp" />
+        android:textSize="@dimen/text_size_body" />
 
     <!-- Email Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/margin_l"
         app:boxBackgroundColor="@color/white"
         app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp">
+        app:boxCornerRadiusBottomEnd="@dimen/button_corner_radius"
+        app:boxCornerRadiusBottomStart="@dimen/button_corner_radius"
+        app:boxCornerRadiusTopEnd="@dimen/button_corner_radius"
+        app:boxCornerRadiusTopStart="@dimen/button_corner_radius">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/register_EDT_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="you@example.com"
+            android:hint="@string/you_example_com"
             android:inputType="textEmailAddress"
-            android:padding="12dp" />
+            android:padding="@dimen/margin_m" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Password Label -->
@@ -60,9 +60,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
-        android:text="Password"
+        android:text="@string/password"
         android:textColor="@color/black"
-        android:textSize="16sp" />
+        android:textSize="@dimen/text_size_body" />
 
     <!-- Password Field -->
     <com.google.android.material.textfield.TextInputLayout
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:hint="Password"
             android:inputType="textPassword"
-            android:padding="12dp" />
+            android:padding="@dimen/margin_m" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Register Button -->
@@ -90,15 +90,15 @@
         android:id="@+id/register_BTN_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="14dp"
-        android:text="Register"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:paddingVertical="@dimen/padding_14"
+        android:text="@string/register"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_body"
         android:textStyle="bold"
         app:backgroundTint="@color/Primary_yellow"
-        app:cornerRadius="50dp" />
+        app:cornerRadius="@dimen/button_icon_round" />
 
-    <!-- Already have an account? Link back to login (optional) -->
+    <!-- Already have an account? Link back to login -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -108,14 +108,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Already have an account?"
+            android:text="@string/already_have_an_account"
             android:paddingRight="@dimen/padding_xs"/>
 
         <TextView
             android:id="@+id/register_txt_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign in"
+            android:text="@string/sign_in"
             android:textColor="#E91E63"
             android:textStyle="bold"/>
     </LinearLayout>
