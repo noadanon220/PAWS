@@ -60,8 +60,8 @@
                 android:visibility="gone">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="@dimen/margin_l"
+                    android:layout_height="@dimen/margin_l"
                     android:layout_marginEnd="6dp"
                     android:tint="@color/Primary_pink"
                     android:src="@android:drawable/ic_menu_mylocation" />

@@ -18,7 +18,7 @@ class RemindersViewModel : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    fun loadReminders(userId: String) {
+    fun loadReminders() {
         _isLoading.value = true
         _isLoading.value = false
     }

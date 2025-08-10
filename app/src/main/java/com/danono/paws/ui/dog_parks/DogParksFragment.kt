@@ -139,9 +139,6 @@ class DogParksFragment : Fragment(R.layout.fragment_dog_parks), OnMapReadyCallba
             if (hasLocationPermission()) getCurrentLocation() else requestLocationPermission()
         }
 
-        binding.addFavoriteParkButton.setOnClickListener {
-            openAddFavoriteDialog()
-        }
     }
 
     private fun observeViewModel() {

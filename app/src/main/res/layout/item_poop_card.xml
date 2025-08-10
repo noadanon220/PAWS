@@ -24,7 +24,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="@dimen/margin_l"
             android:background="@drawable/bg_circle_shape"
             android:backgroundTint="@color/poop_color_normal" />
 
