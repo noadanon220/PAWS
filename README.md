@@ -1,81 +1,79 @@
-מעולה—הנה **README.md** מעודכן, טון “סטודנטי”, קצת מפורט אבל לא מדי. אפשר להדביק ישר ל-GitHub.
+````markdown
+# 🐾 PAWS – Your Dog Care Companion
+
+[![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com)  
+[![Kotlin](https://img.shields.io/badge/Language-Kotlin-blue.svg)](https://kotlinlang.org)  
+[![Firebase](https://img.shields.io/badge/Backend-Firebase-orange.svg)](https://firebase.google.com)  
+
+**PAWS** is a smart Android app that helps dog owners manage every aspect of their pets’ lives – from creating personal profiles to tracking activities, setting reminders, finding dog parks, and keeping a health log.  
 
 ---
 
-<div align="center">
-  <img src="screenshots/paws_title.png" alt="PAWS title"/>
-</div>
+## ✨ Features
 
-**PAWS** is an Android app I built to help dog owners keep everything in one place: profiles, notes, walks, weight tracking, poop logs, reminders, and nearby dog parks.
-The UI follows Material components, with Firebase sync and Google Maps for the parks screen.
+### 🐕 Dog Management
+- 📌 Add new dogs with name, breed (from **The Dog API**), birth date, coat colors, and personality tags  
+- 🖼 Upload photos from gallery or camera  
+- 📄 View detailed profiles including calculated age, weight, and personality  
 
-From each dog’s profile you can jump to **Notes / Walks / Weight / Poop** with one tap.
+### 📅 Activity Tracking & Reminders
+- 🐾 Track walks (morning, afternoon, evening) with customizable times  
+- 📆 Weekly calendar for walk completion tracking  
+- 🔔 calender for vet appointments, vaccinations, grooming, medication, and more  
+- 🔄 Real-time sync via Firestore  
 
-<div align="center">
-  <img src="screenshots/paws_user_flow.png" alt="App flow"/>
-</div>
+### 📍 Dog Parks
+- 🗺 Interactive Google Map with search for nearby dog parks
 
-# 🐶 Main Features
-
-## 👤 Dog Profiles
-
-* Name, breed, birthday/age, color, tags, photo
-* Quick-access cards: **Notes / Walks / Weight / Poop**
-
-## 📝 Notes
-
-* Add & edit notes per dog
-* Realtime updates via Firestore
-
-## 🚶 Walks
-
-* Simple daily tracking (AM/PM style)
-* Toggle completion and browse by dates
-
-## ⚖️ Weight
-
-* Add & edit weight entries in a small dialog (outlined style)
-* The latest weight appears live on the dog’s profile
-
-## 💩 Poop Log
-
-* Choose **color** and **consistency**, optional note/photo
-
-## 🗓️ Reminders
-
-* Calendar for grooming, vet, feeding, etc.
-* “Upcoming reminders” on Home
-
-## 🗺️ Dog Parks
-
-* Google Map with **search** and current location (with permission)
-* Long-press to drop a custom pin
-* Save a favorite park locally
-
-## ⚙️ Settings
-
-* Display name & profile photo
+### 👤 User Management
+- 🖊 Profile customization (name, picture)  
+- 🔐 Secure login with Firebase Authentication  
 
 ---
 
-# 🛠️ Tech Used
+## 📦 Libraries Used
 
-Kotlin · AndroidX · Material
-Jetpack: ViewModel, LiveData, Navigation, RecyclerView
-Firebase: Auth, Cloud Firestore, Storage
-Google Maps SDK · Retrofit/OkHttp (Dog breeds)
-ViewBinding + a small ImageLoader util
+| Library | Purpose |
+|---------|---------|
+| [Firebase Firestore](https://firebase.google.com/docs/firestore) | Real-time database for dogs, notes, logs, and reminders |
+| [Firebase Storage](https://firebase.google.com/docs/storage) | Store images (dog photos, poop log images) |
+| [Firebase Authentication](https://firebase.google.com/docs/auth) | User authentication |
+| [Google Maps SDK](https://developers.google.com/maps/documentation/android-sdk) | Interactive map and location services |
+| [The Dog API](https://thedogapi.com/) | Dog breed data and suggestions |
+| [Kizitonwose CalendarView](https://github.com/kizitonwose/CalendarView) | Custom calendar UI |
+| [Retrofit](https://square.github.io/retrofit/) + [OkHttp](https://square.github.io/okhttp/) | Network requests and API calls |
+| [Glide](https://bumptech.github.io/glide/) | Image loading and caching |
 
 ---
 
-# 📲 Installation
+## 🛠 Technologies
+| Category        | Tools / Libraries |
+|-----------------|-------------------|
+| Language        | Kotlin |
+| Architecture    | Jetpack (ViewModel, LiveData, Navigation) |
+| Backend         | Firebase Firestore, Firebase Storage, Firebase Auth |
+| APIs            | The Dog API, Google Maps SDK |
+| UI / UX         | Material Design, Glide |
+| Calendar        | Kizitonwose CalendarView |
 
-Feel free to clone and run the app on any Android device or emulator:
+---
 
+## 🛣 Futur Roadmap
+
+* 📊 Weight tracking with growth charts
+* 📩 Push notifications for reminders
+* 🌐 Social features to connect with dog owners
+* 📦 Offline support with local caching
+
+---
+
+
+💡 **Feel free to clone this repository and explore the code:**
 ```bash
 git clone https://github.com/noadanon220/PAWS.git
-```
+cd PAWS/app
+````
 
----
+**Made with ❤️ for dog lovers everywhere**
 
-If you spot anything that can be improved (like charts for weight history), I’m happy to hear feedback! 🙌
+
