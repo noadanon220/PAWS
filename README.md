@@ -1,4 +1,3 @@
-````markdown
 # 🐾 PAWS – Your Dog Care Companion
 
 [![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com)  
