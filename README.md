@@ -36,7 +36,7 @@
 ---
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/noadanon220/PAWS/main/PAWS.jpg" width="200" alt="PAWS Logo"/>
+  <img src="https://raw.githubusercontent.com/noadanon220/PAWS/main/PAWS.jpg" width="800" alt="PAWS Logo"/>
 </p>
 
 ## 📦 Libraries Used
